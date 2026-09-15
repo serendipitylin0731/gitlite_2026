@@ -45,6 +45,10 @@ C D1
 C D2
 > pull R1 master
 <<<
+= f.txt wug.txt
+= g.txt notwug.txt
+= h.txt wug3.txt
+= k.txt wug2.txt
 > log
 ===
 ${COMMIT_HEAD}

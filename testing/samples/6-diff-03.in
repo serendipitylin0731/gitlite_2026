@@ -5,18 +5,19 @@ I setup2.inc
 + f.txt notwug.txt
 > log
 ===
-commit ([a-f0-9]+)
+commit (([a-f0-9]{8})[a-f0-9]{32})
 ${DATE}
 Two files
 
 ===
-commit [a-f0-9]+
+commit [a-f0-9]{40}
 ${DATE}
 initial commit
 
 <<<*
 D TWO "${1}"
-> diff ${TWO}
+D TWO_ABBR "${2}"
+> diff ${TWO_ABBR}
 diff --gitlite a/f.txt b/f.txt
 --- a/f.txt
 +++ b/f.txt
@@ -31,4 +32,36 @@ No commit with that id exists.
 <<<
 > diff 025052f2b193d417df998517a4c539918801b430 ${TWO}
 No commit with that id exists.
+<<<
++ multi.txt diff-old.txt
+> add multi.txt
+<<<
+> commit "add multiline file"
+<<<
++ multi.txt diff-new.txt
+> diff
+diff --gitlite a/f.txt b/f.txt
+--- a/f.txt
++++ b/f.txt
+@@ -1,1 +1,1 @@
+-This is a wug.
++This is not a wug.
+diff --gitlite a/multi.txt b/multi.txt
+--- a/multi.txt
++++ b/multi.txt
+@@ -1,6 +1,6 @@
+ line1
+ same2
+-old3
++new3
+ same4
+ same5
+ same6
+@@ -8,5 +8,5 @@
+ same8
+ same9
+ same10
+-old11
++new11
+ same12
 <<<

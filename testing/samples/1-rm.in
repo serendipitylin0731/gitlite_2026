@@ -4,4 +4,32 @@ I prelude1.inc
 > rm f.txt
 No reason to remove the file.
 <<<
+> add f.txt
+<<<
+> rm f.txt
+<<<
+E f.txt
+> commit "nothing staged"
+No changes added to the commit.
+<<<
+> add f.txt
+<<<
+> commit "track f"
+<<<
+> rm f.txt
+<<<
+* f.txt
+> status
+=== Branches ===
+*master
 
+=== Staged Files ===
+
+=== Removed Files ===
+f.txt
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<

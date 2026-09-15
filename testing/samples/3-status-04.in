@@ -14,8 +14,7 @@ g.txt
 === Modifications Not Staged For Commit ===
 
 === Untracked Files ===
-${ARBLINES}
-
+(f\.txt)?
 <<<*
 # File was not tracked, so make sure it's still there
 = f.txt wug.txt

@@ -9,17 +9,17 @@ I setup2.inc
 <<<
 > log
 ===
-commit ([a-f0-9]+)
+commit ([a-f0-9]{40})
 ${DATE}
 second
 
 ===
-commit ([a-f0-9]+)
+commit ([a-f0-9]{40})
 ${DATE}
 Two files
 
 ===
-commit [a-f0-9]+
+commit [a-f0-9]{40}
 ${DATE}
 initial commit
 

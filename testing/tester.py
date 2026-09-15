@@ -1,7 +1,7 @@
-import sys, re
+import sys, re, shlex
 from subprocess import \
      check_output, PIPE, STDOUT, DEVNULL, CalledProcessError, TimeoutExpired
-from os.path import abspath, basename, dirname, exists, join, splitext
+from os.path import abspath, basename, dirname, exists, isfile, join, splitext
 from getopt import getopt, GetoptError
 from os import chdir, environ, getcwd, mkdir, remove, access, W_OK
 from shutil import copyfile, rmtree
@@ -15,15 +15,15 @@ Usage: python3 tester.py OPTIONS TEST.in ...
        --show=all     Show details on all tests.
        --reps=R       Repeat each test R times.
        --keep         Keep test directories
-       --progdir=DIR  Directory or JAR files containing gitlet application
+       --progdir=DIR  Project/build directory containing the gitlite executable,
+                      or the executable path itself.
        --timeout=SEC  Default number of seconds allowed to each execution
-                      of gitlet.
+                      of gitlite.
        --src=SRC      Use SRC instead of "src" as the subdirectory containing
                       files referenced by + and =.
-       --debug        Allows you to step through commands one by one and
-                      attach a remote debugger
+       --debug        Pause before each command.
        --tolerance=N  Set the maximum allowed edit distance between program
-                      output and expected output to N (default 3).
+                      output and expected output to N (default 0).
        --verbose      Print extra information about execution.
 """
 
@@ -46,10 +46,13 @@ The instructions each have one of the following forms:
           the main directory for this test.  If DIR is missing, changes
           back to the default directory.  This command is principally
           intended to let you set up remote repositories.
-   T N    Set the timeout for gitlet commands in the rest of this test to N
+   T N    Set the timeout for gitlite commands in the rest of this test to N
           seconds.
    + NAME F
           Copy the contents of src/F into a file named NAME.
+   N NAME F
+          Copy src/F into NAME after removing one final newline byte. This is
+          useful for testing end-of-file newline handling.
    - NAME
           Delete the file named NAME.
    > COMMAND OPERANDS
@@ -57,13 +60,13 @@ The instructions each have one of the following forms:
    LINE2
    ...
    <<<
-          Run gitlet.Main with COMMAND ARGUMENTS as its parameters.  Compare
+          Run gitlite with COMMAND ARGUMENTS as its parameters. Compare
           its output with LINE1, LINE2, etc., reporting an error if there is
-          "sufficient" discrepency.  The <<< delimiter may be followed by
+          "sufficient" discrepancy. The <<< delimiter may be followed by
           an asterisk (*), in which case, the preceding lines are treated as 
           Python regular expressions and matched accordingly. The directory
-          or JAR file containing the gitlet.Main program is assumed to be
-          in directory DIR specifed by --progdir (default is ..).
+          The executable is found from the project containing tester.py unless
+          --progdir is provided.
    = NAME F
           Check that the file named NAME is identical to src/F, and report an
           error if not.
@@ -79,7 +82,7 @@ The instructions each have one of the following forms:
           first applied to VALUE.
 
 For each TEST.in, reports at most one error.  Without the --show option,
-simply indicates tests passed and failed.  If N is postive, also prints details
+simply indicates tests passed and failed. If N is positive, also prints details
 of the first N failing tests. With --show=all, shows details of all failing
 tests.  With --keep, keeps the directories created for the tests (with names
 TEST.dir).
@@ -91,9 +94,6 @@ TIMEOUT = 10
 
 # C++ executable configuration
 CPP_EXECUTABLE = "gitlite"
-
-# 默认使用C++版本
-USE_CPP = True
 
 # Test scores mapping
 TEST_SCORES = {
@@ -158,13 +158,10 @@ SUBTASKS = {
 }
 
 DEBUG = False
-
-DEBUG = False
 DEBUG_MSG = \
     """You are in debug mode.
     In this mode, you will be shown each command from the test case.
-    If you would like to step into and debug the command, type 's'. Once you have done so, go back to IntelliJ and click the debug button.
-    If you would like to move on to the next command, type 'n'."""
+    Enter 's' to run the command, or 'n' to run it and continue."""
 cmd = None
 
 def Usage():
@@ -224,20 +221,31 @@ def doCopy(dest, src, dir):
     except OSError:
         raise ValueError("file {} could not be copied to {}".format(src, dest))
 
+def doCopyWithoutFinalNewline(dest, src, dir):
+    try:
+        doDelete(dest, dir)
+        with open(join(src_dir, src), 'rb') as inp:
+            data = inp.read()
+        if data.endswith(b'\n'):
+            data = data[:-1]
+        with open(join(dir, dest), 'wb') as out:
+            out.write(data)
+    except OSError:
+        raise ValueError("file {} could not be copied to {}".format(src, dest))
+
 def doExecute(cmnd, dir, timeout, line_num):
     here = getcwd()
     out = ""
     try:
         chdir(dir)
         
-        # 使用C++可执行文件
-        full_cmnd = "{} {}".format(CPP_EXECUTABLE, cmnd)
+        full_cmnd = [CPP_EXECUTABLE] + shlex.split(cmnd)
             
         if DEBUG:
-            print("[line {}]: gitlet {}".format(line_num, cmnd))
+            print("[line {}]: gitlite {}".format(line_num, cmnd))
             input_prompt = ">>> "
             next_cmd = input(input_prompt)
-            while(next_cmd not in "ns"):
+            while next_cmd not in ("n", "s"):
                 print("Please enter either 'n' or 's'.")
                 next_cmd = input(input_prompt)
 
@@ -260,7 +268,7 @@ def doExecute(cmnd, dir, timeout, line_num):
         chdir(here)
 
 def doCommand(full_cmnd, timeout):
-    out = check_output(full_cmnd, shell=True, universal_newlines=True,
+    out = check_output(full_cmnd, shell=False, universal_newlines=True,
                         stdin=DEVNULL, stderr=STDOUT, timeout=timeout)
     return out
 
@@ -283,22 +291,30 @@ def write_file(test, tag, expected, actual):
         f.write(contents)
 
 def correctProgramOutput(expected, actual, last_groups, is_regexp):
-    expected = re.sub(r'[ \t]+\n', '\n', '\n'.join(expected))
-    expected = re.sub(r'(?m)^[ \t]+', ' ', expected)
-    actual = re.sub(r'[ \t]+\n', '\n', actual)
-    actual = re.sub(r'(?m)^[ \t]+', ' ', actual)
+    expected = '\n'.join(expected)
+    actual = canonicalize(actual)
+    # The DSL represents lines rather than the final line terminator. Accept
+    # exactly one terminal newline difference, but no other whitespace changes.
+    candidates = [actual]
+    if actual.endswith('\n'):
+        candidates.append(actual[:-1])
 
-    last_groups[:] = (actual,)
     if is_regexp:
+        match = None
         try:
-            if not Match(expected.rstrip() + r"\Z", actual) \
-                   and not Match(expected.rstrip() + r"\Z", actual.rstrip()):
-                return False
+            for candidate in candidates:
+                if Match(expected + r"\Z", candidate):
+                    match = Mat
+                    break
         except:
             raise ValueError("bad pattern")
-        last_groups[:] += Mat.groups()
-    elif editDistance(expected.rstrip(), actual.rstrip()) > output_tolerance:
+        if match is None:
+            return False
+        last_groups[:] = (actual,) + match.groups()
+    elif min(editDistance(expected, candidate) for candidate in candidates) > output_tolerance:
         return False
+    else:
+        last_groups[:] = (actual,)
     return True
 
 def reportDetails(test, included_files, line_num):
@@ -414,6 +430,8 @@ def doTest(test):
                         ValueError("bad time: {}".format(line))
                 elif Match(r'\+\s*(\S+)\s+(\S+)', line):
                     doCopy(Group(1), Group(2), cdir)
+                elif Match(r'N\s+(\S+)\s+(\S+)', line):
+                    doCopyWithoutFinalNewline(Group(1), Group(2), cdir)
                 elif Match(r'-\s*(\S+)', line):
                     doDelete(Group(1), cdir)
                 elif Match(r'>\s*(.*)', line):
@@ -437,6 +455,7 @@ def doTest(test):
                         if not correctProgramOutput(expected, out, last_groups,
                                                     is_regexp):
                             write_file(test, cmnd, expected, out)
+                            reportDetails(test, included_files, line_num)
                             msg = "incorrect output"
                     if msg != "OK":
                         print("{}: FAILED ({}) (0pts/{}pts)".format(base, msg, test_score))
@@ -509,33 +528,32 @@ if __name__ == "__main__":
             elif opt == "--reps":
                 num_reps = int(val)
         
-        if prog_dir is None:
-            project_root = dirname(dirname(abspath(__file__)))
-            prog_dir = project_root
-            # Try multiple possible locations for the C++ executable
-            possible_paths = [
-                join(project_root, 'build', 'gitlite'),
-            ]
-            cpp_executable_path = None
+        project_root = dirname(dirname(abspath(__file__)))
+        search_root = abspath(prog_dir) if prog_dir is not None else project_root
+        possible_paths = [search_root] if isfile(search_root) else [
+            join(search_root, 'build', 'gitlite'),
+            join(search_root, 'gitlite'),
+        ]
+        cpp_executable_path = next((path for path in possible_paths
+                                    if isfile(path)), None)
+        if cpp_executable_path:
+            CPP_EXECUTABLE = cpp_executable_path
+        else:
+            print("Could not find gitlite C++ executable.", file=sys.stderr)
+            print("Looked for it at:", file=sys.stderr)
             for path in possible_paths:
-                if exists(path):
-                    cpp_executable_path = path
-                    break
-            
-            if cpp_executable_path:
-                CPP_EXECUTABLE = cpp_executable_path
-            else:
-                print("Could not find gitlite C++ executable.", file=sys.stderr)
-                print("Looked for it at:", file=sys.stderr)
-                for path in possible_paths:
-                    print("  {}".format(path), file=sys.stderr)
-                print("Please compile the C++ version first or specify --progdir.", file=sys.stderr)
-                sys.exit(1)
+                print("  {}".format(path), file=sys.stderr)
+            print("Please compile gitlite first or specify --progdir.", file=sys.stderr)
+            sys.exit(1)
     except GetoptError:
         Usage()
     if not files:
         print(USAGE)
         sys.exit(0)
+
+    # Each run reports only failures from that run.
+    if exists("out.txt"):
+        remove("out.txt")
 
     num_tests = len(files)
     errs = 0

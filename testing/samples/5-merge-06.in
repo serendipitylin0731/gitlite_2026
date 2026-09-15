@@ -23,3 +23,37 @@ Given branch is an ancestor of the current branch.
 Current branch fast-forwarded.
 <<<
 * f.txt
+> branch same
+<<<
++ x.txt wug.txt
+> add x.txt
+<<<
+> commit "temporarily add x"
+<<<
+> rm x.txt
+<<<
+> commit "remove x"
+<<<
+> checkout same
+<<<
++ y.txt notwug.txt
+> add y.txt
+<<<
+> commit "temporarily add y"
+<<<
+> rm y.txt
+<<<
+> commit "remove y"
+<<<
+> checkout b2
+<<<
+> merge same
+No changes added to the commit.
+<<<
+> log
+===
+${COMMIT_HEAD}
+remove x
+
+${ARBLINES}
+<<<*

@@ -24,7 +24,8 @@ ${COMMIT_HEAD}
 Add k.txt and remove f.txt
 
 ===
-${COMMIT_HEAD}
+commit (([a-f0-9]{8})[a-f0-9]{32})
+${DATE}
 Two files
 
 ===
@@ -32,8 +33,9 @@ ${COMMIT_HEAD}
 initial commit
 
 <<<*
-D INIT "${3}"
+D INIT "${4}"
 D TWO "${2}"
+D TWO_ABBR "${3}"
 D OTHER1 "${1}"
 
 > checkout master
@@ -50,12 +52,13 @@ Two files
 ===
 ${COMMIT_HEAD}
 initial commit
+
 <<<*
 D MASTER1 "${1}"
 + m.txt wug.txt
 > add m.txt
 <<<
-> reset ${TWO}
+> reset ${TWO_ABBR}
 <<<
 > status
 === Branches ===
@@ -69,7 +72,7 @@ other
 === Modifications Not Staged For Commit ===
 
 === Untracked Files ===
-(m\.txt\n)?\s*
+(m\.txt)?
 <<<*
 
 > log
@@ -80,6 +83,7 @@ Two files
 ===
 ${COMMIT_HEAD}
 initial commit
+
 <<<*
 > checkout other
 <<<
@@ -107,6 +111,7 @@ Two files
 ===
 ${COMMIT_HEAD}
 initial commit
+
 <<<*
 > reset ${MASTER1}
 <<<

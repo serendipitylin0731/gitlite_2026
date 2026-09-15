@@ -9,6 +9,15 @@ I setup2.inc
 <<<
 > commit "Add h.txt and remove g.txt"
 <<<
+> log
+===
+commit ([a-f0-9]{7})[a-f0-9]{33}
+${DATE}
+Add h.txt and remove g.txt
+
+${ARBLINES}
+<<<*
+D MASTER_PARENT "${1}"
 > checkout other
 <<<
 > rm f.txt
@@ -18,6 +27,15 @@ I setup2.inc
 <<<
 > commit "Add k.txt and remove f.txt"
 <<<
+> log
+===
+commit ([a-f0-9]{7})[a-f0-9]{33}
+${DATE}
+Add k.txt and remove f.txt
+
+${ARBLINES}
+<<<*
+D OTHER_PARENT "${1}"
 > checkout master
 <<<
 > merge other
@@ -28,7 +46,9 @@ I setup2.inc
 = k.txt wug3.txt
 > log
 ===
-${COMMIT_HEAD}
+commit [a-f0-9]{40}
+Merge: ${MASTER_PARENT} ${OTHER_PARENT}
+${DATE}
 Merged other into master\.
 
 ${ARBLINES}

@@ -5,6 +5,7 @@ I prelude1.inc
 <<<
 > commit "add f"
 <<<
++ untracked.txt wug2.txt
 + f.txt notwug.txt
 > diff
 diff --gitlite a/f.txt b/f.txt
@@ -13,4 +14,37 @@ diff --gitlite a/f.txt b/f.txt
 @@ -1,1 +1,1 @@
 -This is a wug.
 +This is not a wug.
+<<<
+> add f.txt
+<<<
++ f.txt wug.txt
+> diff
+<<<
+- f.txt
+> diff
+diff --gitlite a/f.txt b/f.txt
+--- a/f.txt
++++ /dev/null
+@@ -1,1 +0,0 @@
+-This is a wug.
+<<<
+> checkout -- f.txt
+<<<
+> add f.txt
+<<<
+N n.txt wug.txt
+> add n.txt
+<<<
+> commit "add file without final newline"
+<<<
+N n.txt notwug.txt
+> diff
+diff --gitlite a/n.txt b/n.txt
+--- a/n.txt
++++ b/n.txt
+@@ -1,1 +1,1 @@
+-This is a wug.
+\ No newline at end of file
++This is not a wug.
+\ No newline at end of file
 <<<

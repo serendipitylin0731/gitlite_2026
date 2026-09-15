@@ -6,3 +6,23 @@ I prelude1.inc
 >commit ""
 Please enter a commit message.
 <<<
+> status
+=== Branches ===
+*master
+
+=== Staged Files ===
+f.txt
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<
++ f.txt notwug.txt
+> commit "uses staged snapshot"
+<<<
+> checkout -- f.txt
+<<<
+= f.txt wug.txt

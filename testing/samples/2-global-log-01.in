@@ -3,8 +3,8 @@
 #        log.
 I setup2.inc
 # Kludge starts.
-D DATE1 "Date: \w\w\w \w\w\w \d+ \d\d:\d\d:\d\d \d\d\d\d"
-D COMMIT_LOG "(===[ ]*\ncommit [a-f0-9]+[ ]*\n(?:Merge:\s+[0-9a-f]{7}\s+[0-9a-f]{7}[ ]*\n)?${DATE1}) [-+](\d\d\d\d[ ]*\n(?:.|\n)*?(?=\Z|\n===))"
+D DATE1 "Date: \w{3} \w{3} \d{2} \d{2}:\d{2}:\d{2} \d{4}"
+D COMMIT_LOG "(===\ncommit [a-f0-9]{40}\n(?:Merge: [0-9a-f]{7} [0-9a-f]{7}\n)?${DATE1}) [-+](\d{4}\n(?:.|\n)*?(?=\Z|\n===))"
 + h.txt wug.txt
 > add h.txt
 <<<

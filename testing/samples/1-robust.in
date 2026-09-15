@@ -1,5 +1,18 @@
 # Test for wrong command name.
-I prelude1.inc
 > glorp foo
 No command with that name exists.
+<<<
+> add
+Not in an initialized Gitlite directory.
+<<<
+> init extra
+Incorrect operands.
+<<<
+> init
+<<<
+> add
+Incorrect operands.
+<<<
+> status extra
+Incorrect operands.
 <<<

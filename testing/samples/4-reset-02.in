@@ -22,6 +22,7 @@ Two files
 ===
 ${COMMIT_HEAD}
 initial commit
+
 <<<*
 D INIT "${3}"
 D TWO "${2}"

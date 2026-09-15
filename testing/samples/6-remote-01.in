@@ -31,12 +31,12 @@ ${COMMIT_HEAD}
 Add k in repo 2
 
 ===
-${COMMIT_HEAD}
+commit ${R1_INIT}
+${DATE}
 initial commit
 
 <<<*
 D R2_K "${1}"
-D R2_INIT "${2}"
 
 # Fetch remote master and reset our master to it.
 # Then add another commit and push.
@@ -46,6 +46,9 @@ D R2_INIT "${2}"
 <<<
 > checkout R1/master
 <<<
+= f.txt wug.txt
+= g.txt notwug.txt
+* k.txt
 > log
 ===
 commit ${R1_TWO}
@@ -86,6 +89,8 @@ initial commit
 D R2_H "${1}"
 > push R1 master
 <<<
+> push R1 topic
+<<<
 
 # Check that we have received the pushed branch
 C D1
@@ -106,3 +111,11 @@ ${DATE}
 initial commit
 
 <<<*
+> checkout -- h.txt
+<<<
+= h.txt wug3.txt
+> checkout topic
+<<<
+= f.txt wug.txt
+= g.txt notwug.txt
+= h.txt wug3.txt

@@ -3,3 +3,17 @@ I setup2.inc
 > add f.txt
 <<<
 I blank-status.inc
++ f.txt notwug.txt
+> add f.txt
+<<<
++ f.txt wug.txt
+> add f.txt
+<<<
+I blank-status.inc
+> rm f.txt
+<<<
+* f.txt
++ f.txt wug.txt
+> add f.txt
+<<<
+I blank-status.inc

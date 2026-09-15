@@ -1,5 +1,4 @@
-# Test the find command when it finds commits that are no longer
-# on any branch.
+# Test the find command when no commit has the requested message.
 I setup2.inc
 > rm f.txt
 <<<

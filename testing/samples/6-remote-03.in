@@ -19,6 +19,15 @@ D R1_INIT "${2}"
 C D2
 > init
 <<<
+> fetch missing master
+Remote directory not found.
+<<<
+> push missing master
+Remote directory not found.
+<<<
+> pull missing master
+Remote directory not found.
+<<<
 + k.txt wug2.txt
 > add k.txt
 <<<
