@@ -6,6 +6,7 @@
 #include "../include/commands/BranchCommands.h"
 #include "../include/commands/MergeCommands.h"
 #include "../include/commands/RemoteCommands.h"
+#include "../include/commands/DiffCommands.h"
 
 SomeObj::SomeObj() {}
 
@@ -87,4 +88,16 @@ void SomeObj::fetch(const std::string& remoteName, const std::string& branchName
 
 void SomeObj::pull(const std::string& remoteName, const std::string& branchName) {
     Commands::pull(remoteName, branchName);
+}
+
+void SomeObj::diff() {
+    Commands::diff();
+}
+
+void SomeObj::diffWithCommit(const std::string& commitId) {
+    Commands::diffWithCommit(commitId);
+}
+
+void SomeObj::diffBetween(const std::string& commitId1, const std::string& commitId2) {
+    Commands::diffBetween(commitId1, commitId2);
 }

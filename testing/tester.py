@@ -130,18 +130,21 @@ TEST_SCORES = {
     "4-reset-02": 3,
     "4-global-log-02": 1,
     "4-find-03": 1,
-    "5-merge-01": 3,
-    "5-merge-02": 3,
-    "5-merge-03": 3,
-    "5-merge-04": 5,
-    "5-merge-05": 3,
-    "5-merge-06": 4,
-    "5-merge-07": 4,
-    "5-merge-08": 5,
+    "5-merge-01": 2,
+    "5-merge-02": 2,
+    "5-merge-03": 2,
+    "5-merge-04": 3,
+    "5-merge-05": 2,
+    "5-merge-06": 3,
+    "5-merge-07": 3,
+    "5-merge-08": 3,
     "6-status-05": 5,
     "6-remote-01": 5,
     "6-remote-02": 5,
-    "6-remote-03": 5
+    "6-remote-03": 5,
+    "6-diff-01": 3,
+    "6-diff-02": 4,
+    "6-diff-03": 3
 }
 
 # Subtask groupings
@@ -151,7 +154,7 @@ SUBTASKS = {
     "Subtask3(status,checkout)": ["3-status", "3-status-01", "3-status-02", "3-status-03", "3-status-04", "3-status-05", "3-status-06", "3-status-07", "3-checkout-03", "3-checkout-04", "3-checkout-05"],
     "Subtask4(branch,rm-branch,reset)": ["4-branch-01", "4-branch-02", "4-branch-03", "4-rm-branch-01", "4-rm-branch-02", "4-reset-01", "4-reset-02", "4-global-log-02", "4-find-03"],
     "Subtask5(merge)": ["5-merge-01", "5-merge-02", "5-merge-03", "5-merge-04", "5-merge-05", "5-merge-06", "5-merge-07", "5-merge-08"],
-    "Subtask6(bonus)": ["6-status-05", "6-remote-01", "6-remote-02", "6-remote-03"]
+    "Subtask6(bonus)": ["6-status-05", "6-remote-01", "6-remote-02", "6-remote-03", "6-diff-01", "6-diff-02", "6-diff-03"]
 }
 
 DEBUG = False

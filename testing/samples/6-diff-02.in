@@ -1,0 +1,38 @@
+# Diff between two commits: one file deleted, one added, one unchanged.
+I setup2.inc
+> rm g.txt
+<<<
++ h.txt wug2.txt
+> add h.txt
+<<<
+> commit "second"
+<<<
+> log
+===
+commit ([a-f0-9]+)
+${DATE}
+second
+
+===
+commit ([a-f0-9]+)
+${DATE}
+Two files
+
+===
+commit [a-f0-9]+
+${DATE}
+initial commit
+
+<<<*
+> diff ${2} ${1}
+diff --gitlite a/g.txt b/g.txt
+--- a/g.txt
++++ /dev/null
+@@ -1,1 +0,0 @@
+-This is not a wug.
+diff --gitlite a/h.txt b/h.txt
+--- /dev/null
++++ b/h.txt
+@@ -0,0 +1,1 @@
++Another wug.
+<<<

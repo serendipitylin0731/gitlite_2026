@@ -35,6 +35,11 @@ public:
     void push(const std::string& remoteName, const std::string& branchName);
     void fetch(const std::string& remoteName, const std::string& branchName);
     void pull(const std::string& remoteName, const std::string& branchName);
+
+    /* diff 的三种形式。 */
+    void diff();
+    void diffWithCommit(const std::string& commitId);
+    void diffBetween(const std::string& commitId1, const std::string& commitId2);
 };
 
 #endif // SOME_OBJ_H

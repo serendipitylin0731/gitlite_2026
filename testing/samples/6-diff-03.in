@@ -1,0 +1,34 @@
+# No differences, diff against a given commit, and error cases.
+I setup2.inc
+> diff
+<<<
++ f.txt notwug.txt
+> log
+===
+commit ([a-f0-9]+)
+${DATE}
+Two files
+
+===
+commit [a-f0-9]+
+${DATE}
+initial commit
+
+<<<*
+D TWO "${1}"
+> diff ${TWO}
+diff --gitlite a/f.txt b/f.txt
+--- a/f.txt
++++ b/f.txt
+@@ -1,1 +1,1 @@
+-This is a wug.
++This is not a wug.
+<<<
+> diff ${TWO} ${TWO}
+<<<
+> diff 025052f2b193d417df998517a4c539918801b430
+No commit with that id exists.
+<<<
+> diff 025052f2b193d417df998517a4c539918801b430 ${TWO}
+No commit with that id exists.
+<<<
