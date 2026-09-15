@@ -1,0 +1,33 @@
+# Identical changes on both branches still produce a merge commit.
+I setup2.inc
+> branch other
+<<<
++ f.txt notwug.txt
+> add f.txt
+<<<
+> commit "Change f on master"
+<<<
+> checkout other
+<<<
++ f.txt notwug.txt
+> add f.txt
+<<<
+> commit "Same change on other"
+<<<
+> checkout master
+<<<
+> merge other
+<<<
+= f.txt notwug.txt
+= g.txt notwug.txt
+> log
+===
+${COMMIT_HEAD}
+Merged other into master\.
+
+${ARBLINES}
+<<<*
+I blank-status2.inc
+> merge other
+Given branch is an ancestor of the current branch.
+<<<

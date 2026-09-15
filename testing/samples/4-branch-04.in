@@ -1,0 +1,43 @@
+# Branches start at HEAD, can be recreated, and are listed in sorted order.
+I setup2.inc
+> branch topic
+<<<
+> checkout topic
+<<<
+> log
+===
+${COMMIT_HEAD}
+Two files
+
+===
+${COMMIT_HEAD}
+initial commit
+
+<<<*
+> checkout master
+<<<
+> rm-branch topic
+<<<
+> branch topic
+<<<
+> checkout topic
+<<<
+= f.txt wug.txt
+= g.txt notwug.txt
+> branch aaa
+<<<
+> status
+=== Branches ===
+aaa
+master
+*topic
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<

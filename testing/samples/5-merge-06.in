@@ -48,12 +48,27 @@ Current branch fast-forwarded.
 > checkout b2
 <<<
 > merge same
-No changes added to the commit.
 <<<
 > log
 ===
 ${COMMIT_HEAD}
-remove x
+Merged same into b2\.
 
 ${ARBLINES}
 <<<*
+> status
+=== Branches ===
+b1
+*b2
+master
+same
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<

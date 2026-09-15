@@ -1,0 +1,30 @@
+# A deletion made only in the given branch is applied without conflict.
+I setup2.inc
+> branch other
+<<<
+> checkout other
+<<<
+> rm g.txt
+<<<
+> commit "Remove g on other"
+<<<
+> checkout master
+<<<
++ h.txt wug2.txt
+> add h.txt
+<<<
+> commit "Add h on master"
+<<<
+> merge other
+<<<
+* g.txt
+= f.txt wug.txt
+= h.txt wug2.txt
+> log
+===
+${COMMIT_HEAD}
+Merged other into master\.
+
+${ARBLINES}
+<<<*
+I blank-status2.inc

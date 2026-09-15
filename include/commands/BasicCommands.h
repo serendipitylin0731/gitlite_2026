@@ -14,9 +14,10 @@ void commit(const std::string& message);
 void rm(const std::string& filename);
 
 /** Persist the current staging area as a new commit on the current
- *  branch (shared with merge, which passes a second parent). Exits
- *  with "No changes added to the commit." when the staging area and
- *  the removal list are both empty. */
+ *  branch (shared with merge, which passes a second parent). A normal
+ *  commit exits with "No changes added to the commit." when both staging
+ *  collections are empty; a merge commit is allowed to be snapshot-empty
+ *  so that it can record its second parent. */
 void commitStagedChanges(const std::string& message, const std::string& secondParent);
 
 }

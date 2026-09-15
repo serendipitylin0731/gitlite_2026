@@ -448,7 +448,7 @@ contents of file in given branch
 
 （将`contents of file in ... branch`替换为对应分支中该文件的内容）并自动暂存结果。具体规则：三条标记行各占一行；将分支中已删除的文件视为空文件（对应部分为空）；如果某一分支的文件内容不以换行符结尾，拼接前为其补上一个换行符；整个文件以`>>>>>>>`一行后的换行符结束。请注意行终止符和行分隔符的运用，不注意这一点的人将会度过一个失败的人生：）
 
-按照上述步骤更新完成并且分割点不是当前分支或指定分支时，合并操作就会自动提交，并记录日志信息`Merged [given branch name] into [current branch name].`（以句点结尾，具体格式详见前文）；**即使遇到冲突也会生成该合并提交**，冲突文件以上述冲突标记文本作为其内容被一并提交；
+当分割点既不是当前分支头提交，也不是给定分支头提交时，`merge`必须创建一个合并提交，并将当前分支头和给定分支头依次记录为第一、第二父提交。该提交的日志信息为`Merged [given branch name] into [current branch name].`（以句点结尾，具体格式详见前文）。即使合并过程中没有文件需要写入、删除或暂存，且合并后的文件快照与当前提交完全相同，也仍然必须创建该合并提交，此时不得输出`No changes added to the commit.`；遇到冲突时也必须创建合并提交，冲突文件以上述冲突标记文本作为其内容被一并提交。
 
 如果合并操作遇到冲突，则会在终端（而不是日志）上打印信息`Encountered a merge conflict.`，注意该信息并非错误信息。
 
@@ -459,7 +459,6 @@ contents of file in given branch
 - 如果存在已暂存的添加或删除操作，则打印错误消息`You have uncommitted changes.`并退出；
 - 如果不存在具有给定名称的分支，则打印错误消息`A branch with that name does not exist.`并退出；
 - 如果尝试将分支与其自身合并，则打印错误消息 `Cannot merge a branch with itself.`后退出；
-- 如果合并后没有任何实际改动可供提交，则按`commit`命令的规则报告`No changes added to the commit.`。
 - 如果合并会覆盖或删除当前提交中未跟踪的文件，则打印错误消息
   `There is an untracked file in the way; delete it, or add and commit it first.`并退出；
 
@@ -469,7 +468,7 @@ contents of file in given branch
 
 ### Subtask6 (Bonus)
 
-在本子任务中，你可以选择完善`status`功能、完成`remote`功能（包括`add-remote`,`rm-remote`,`push`,`fetch`,`pull`），或者完成`diff`功能，也可以三者兼有。评测样例中`6-status-05`（5 分）、`6-remote-01`~`6-remote-03`（各 5 分）与`6-diff-01`~`6-diff-03`（共 10 分）均计入总分，因此若想取得 bonus 满分，三者都需要完成。
+在本子任务中，你可以选择完善`status`功能、完成`remote`功能（包括`add-remote`,`rm-remote`,`push`,`fetch`,`pull`），或者完成`diff`功能，也可以三者兼有。评测样例中`6-status-05`（5 分）、`6-remote-01`（3 分）、`6-remote-02`与`6-remote-03`（各 5 分）、`6-remote-04`（2 分），以及`6-diff-01`~`6-diff-03`（共 10 分）均计入总分，因此若想取得 Bonus 满分，三者都需要完成。
 
 #### `status`（用法：`gitlite status`）
 
@@ -635,9 +634,10 @@ python3 tester.py samples/*.in
 ```text
 1-add-01: OK (1pts/1pts)
 1-add-02: OK (1pts/1pts)
+1-add-03: OK (1pts/1pts)
 1-commit-01: OK (1pts/1pts)
 1-commit-02: OK (1pts/1pts)
-1-init: OK (2pts/2pts)
+1-init: OK (1pts/1pts)
 1-rm: OK (2pts/2pts)
 1-robust: OK (2pts/2pts)
 2-checkout-01: OK (2pts/2pts)
@@ -656,33 +656,39 @@ python3 tester.py samples/*.in
 3-status-05: OK (2pts/2pts)
 3-status-06: OK (2pts/2pts)
 3-status-07: OK (1pts/1pts)
-3-status: OK (2pts/2pts)
-4-branch-01: OK (3pts/3pts)
+3-status-08: OK (1pts/1pts)
+3-status: OK (1pts/1pts)
+4-branch-01: OK (2pts/2pts)
 4-branch-02: OK (2pts/2pts)
 4-branch-03: OK (2pts/2pts)
+4-branch-04: OK (1pts/1pts)
 4-find-03: OK (1pts/1pts)
 4-global-log-02: OK (1pts/1pts)
-4-reset-01: OK (3pts/3pts)
+4-reset-01: OK (2pts/2pts)
 4-reset-02: OK (3pts/3pts)
+4-reset-03: OK (1pts/1pts)
 4-rm-branch-01: OK (3pts/3pts)
 4-rm-branch-02: OK (2pts/2pts)
 5-merge-01: OK (2pts/2pts)
 5-merge-02: OK (2pts/2pts)
 5-merge-03: OK (2pts/2pts)
-5-merge-04: OK (3pts/3pts)
+5-merge-04: OK (2pts/2pts)
 5-merge-05: OK (2pts/2pts)
-5-merge-06: OK (3pts/3pts)
+5-merge-06: OK (2pts/2pts)
 5-merge-07: OK (3pts/3pts)
 5-merge-08: OK (3pts/3pts)
+5-merge-09: OK (1pts/1pts)
+5-merge-11: OK (1pts/1pts)
 6-diff-01: OK (3pts/3pts)
 6-diff-02: OK (4pts/4pts)
 6-diff-03: OK (3pts/3pts)
-6-remote-01: OK (5pts/5pts)
+6-remote-01: OK (3pts/3pts)
 6-remote-02: OK (5pts/5pts)
 6-remote-03: OK (5pts/5pts)
+6-remote-04: OK (2pts/2pts)
 6-status-05: OK (5pts/5pts)
 
-Ran 48 tests.
+Ran 55 tests.
 Total Score: 110 pts
 All tests passed!
 ```

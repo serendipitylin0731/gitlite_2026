@@ -44,7 +44,10 @@ void Commands::add(const std::string& filename) {
 void Commands::commitStagedChanges(const std::string& message, const std::string& secondParent) {
     std::vector<std::string> added = StagingArea::addedFiles();
     std::vector<std::string> removed = StagingArea::removedFiles();
-    if (added.empty() && removed.empty()) {
+    // A normal commit needs a staged change.  A non-fast-forward merge,
+    // however, must record its second parent even when both branches ended
+    // up with an identical snapshot.
+    if (added.empty() && removed.empty() && secondParent.empty()) {
         Utils::exitWithMessage("No changes added to the commit.");
     }
 
