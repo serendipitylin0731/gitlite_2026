@@ -12,3 +12,10 @@ add_executable(gitlite ${CMAKE_CURRENT_SOURCE_DIR}/main.cpp ${SOURCES})
 # The executable must land in gitlite/build for the tester to find it.
 set_target_properties(gitlite PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
+add_custom_command(
+TARGET gitlite POST_BUILD
+COMMAND ${CMAKE_COMMAND} -E copy
+        $<TARGET_FILE:gitlite>
+        ${CMAKE_SOURCE_DIR}/code
+)
