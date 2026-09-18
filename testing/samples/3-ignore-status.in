@@ -1,0 +1,61 @@
+# Ignored files stay out of status; negation, escaping and the last rule work.
+> init
+<<<
++ .gitliteignore ignore-patterns.txt
++ ignored.log wug.txt
++ important.log wug.txt
++ cache-a wug.txt
++ cache-ab wug.txt
++ #notes wug.txt
++ !literal wug.txt
++ plain.dat wug.txt
+> status
+=== Branches ===
+*master
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+cache-ab
+important.log
+plain.dat
+
+<<<
+> add important.log
+<<<
+> add ignored.log
+<<<
++ .gitliteignore ignore-all.txt
++ important.log notwug.txt
+> add important.log
+<<<
+> status
+=== Branches ===
+*master
+
+=== Staged Files ===
+important.log
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<
+> commit "track important"
+<<<
+> branch has-file
+<<<
+> rm important.log
+<<<
+> commit "remove important"
+<<<
++ important.log wug2.txt
+> checkout has-file
+<<<
+= important.log notwug.txt

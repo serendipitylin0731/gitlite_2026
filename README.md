@@ -111,6 +111,29 @@ echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
 
 如果遇上了问题并在查询资料后无果，欢迎与助教联系。为行文方便，下文中的所有命令均以修改`PATH`后的命令为准.
 
+### `.gitliteignore`
+
+Gitlite 支持在工作目录根目录放置一个可选的`.gitliteignore`文件，用于排除不希望纳入版本管理的普通文件。该功能遵循本项目“仓库文件结构扁平、不处理子目录”的总体约束，因此每条规则都只与工作目录根目录中的完整文件名匹配，不要求也不支持对子目录进行递归匹配。
+
+规则文件使用以下格式：
+
+- 每行是一条规则，空行不产生效果；
+- 行首为`#`时该行为注释；需要匹配以`#`开头的文件名时，可写成`\#filename`；
+- `*`匹配任意长度（包括长度为零）的字符序列，`?`匹配任意单个字符；
+- 反斜杠`\`转义紧随其后的字符，例如`file\*.txt`中的`*`按普通字符匹配；
+- 行首为`!`表示反选，即把此前被忽略的匹配文件重新纳入处理；需要匹配以`!`开头的文件名时，可写成`\!filename`；
+- 可在规则开头使用`/`明确表示从工作目录根目录匹配；由于 Gitlite 只处理根目录普通文件，`foo.txt`与`/foo.txt`效果相同；
+- 多条规则匹配同一文件时，以文件中最后一条匹配规则为准；
+- 除去 Windows 文本行末可能存在的`\r`外，规则不会自动裁剪空格；`[]`、`**`的特殊目录语义等未在上面列出的 Git 通配语法不属于本项目要求。
+
+忽略规则具有以下命令语义：
+
+1. 对一个存在但被忽略、尚未被跟踪且尚未暂存的文件执行`add`时，命令静默成功，但不把它加入暂存区；文件不存在时仍优先报告`File does not exist.`。
+2. `status`的`Untracked Files`部分不显示被忽略的未跟踪文件。
+3. 已被当前提交跟踪或已暂存待添加的文件不受忽略规则影响，仍可被再次`add`，其修改和删除也仍应正常出现在`status`中。换言之，把一个文件名写入`.gitliteignore`不会自动取消跟踪或取消暂存。
+4. 在切换分支、`reset`或`merge`时，被忽略的未跟踪文件不触发`There is an untracked file in the way; ...`错误；如果目标提交在同一路径保存了文件，原有被忽略文件可以被目标版本覆盖。
+5. `.gitliteignore`自身只是普通工作文件：可以被暂存和提交，也可以被其中的规则忽略。文件不存在时，Gitlite 的其他行为与原规范完全相同。每次启动命令时均读取当前工作目录中的最新规则。
+
 ### Subtask1
 
 在本子任务中，你需要完成`init`,`add`,`commit`和`rm`命令.
@@ -639,7 +662,8 @@ python3 tester.py samples/*.in
 1-commit-02: OK (1pts/1pts)
 1-init: OK (1pts/1pts)
 1-rm: OK (2pts/2pts)
-1-robust: OK (2pts/2pts)
+1-robust: OK (1pts/1pts)
+1-ignore-add: OK (1pts/1pts)
 2-checkout-01: OK (2pts/2pts)
 2-checkout-02: OK (2pts/2pts)
 2-find-01: OK (2pts/2pts)
@@ -654,10 +678,11 @@ python3 tester.py samples/*.in
 3-status-03: OK (2pts/2pts)
 3-status-04: OK (2pts/2pts)
 3-status-05: OK (2pts/2pts)
-3-status-06: OK (2pts/2pts)
+3-status-06: OK (1pts/1pts)
 3-status-07: OK (1pts/1pts)
 3-status-08: OK (1pts/1pts)
 3-status: OK (1pts/1pts)
+3-ignore-status: OK (1pts/1pts)
 4-branch-01: OK (2pts/2pts)
 4-branch-02: OK (2pts/2pts)
 4-branch-03: OK (2pts/2pts)
@@ -688,7 +713,7 @@ python3 tester.py samples/*.in
 6-remote-04: OK (2pts/2pts)
 6-status-05: OK (5pts/5pts)
 
-Ran 55 tests.
+Ran 57 tests.
 Total Score: 110 pts
 All tests passed!
 ```

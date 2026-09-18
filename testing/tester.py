@@ -104,7 +104,8 @@ TEST_SCORES = {
     "1-commit-01": 1,
     "1-commit-02": 1,
     "1-rm": 2,
-    "1-robust": 2,
+    "1-robust": 1,
+    "1-ignore-add": 1,
     "2-log": 2,
     "2-global-log-01": 1,
     "2-find-01": 2,
@@ -117,9 +118,10 @@ TEST_SCORES = {
     "3-status-03": 2,
     "3-status-04": 2,
     "3-status-05": 2,
-    "3-status-06": 2,
+    "3-status-06": 1,
     "3-status-07": 1,
     "3-status-08": 1,
+    "3-ignore-status": 1,
     "3-checkout-03": 2,
     "3-checkout-04": 2,
     "3-checkout-05": 1,
@@ -156,9 +158,9 @@ TEST_SCORES = {
 
 # Subtask groupings
 SUBTASKS = {
-    "Subtask1(init,add,commit,rm)": ["1-init", "1-add-01", "1-add-02", "1-add-03", "1-commit-01", "1-commit-02", "1-rm", "1-robust"],
+    "Subtask1(init,add,commit,rm)": ["1-init", "1-add-01", "1-add-02", "1-add-03", "1-commit-01", "1-commit-02", "1-rm", "1-robust", "1-ignore-add"],
     "Subtask2(log,find,checkout)": ["2-log", "2-global-log-01", "2-find-01", "2-find-02", "2-checkout-01", "2-checkout-02"],
-    "Subtask3(status,checkout)": ["3-status", "3-status-01", "3-status-02", "3-status-03", "3-status-04", "3-status-05", "3-status-06", "3-status-07", "3-status-08", "3-checkout-03", "3-checkout-04", "3-checkout-05"],
+    "Subtask3(status,checkout)": ["3-status", "3-status-01", "3-status-02", "3-status-03", "3-status-04", "3-status-05", "3-status-06", "3-status-07", "3-status-08", "3-checkout-03", "3-checkout-04", "3-checkout-05", "3-ignore-status"],
     "Subtask4(branch,rm-branch,reset)": ["4-branch-01", "4-branch-02", "4-branch-03", "4-branch-04", "4-rm-branch-01", "4-rm-branch-02", "4-reset-01", "4-reset-02", "4-reset-03", "4-global-log-02", "4-find-03"],
     "Subtask5(merge)": ["5-merge-01", "5-merge-02", "5-merge-03", "5-merge-04", "5-merge-05", "5-merge-06", "5-merge-07", "5-merge-08", "5-merge-09", "5-merge-11"],
     "Subtask6(bonus)": ["6-status-05", "6-remote-01", "6-remote-02", "6-remote-03", "6-remote-04", "6-diff-01", "6-diff-02", "6-diff-03"]

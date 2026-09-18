@@ -1,0 +1,25 @@
+# Ignored untracked files are not staged, while tracked files remain addable.
+> init
+<<<
++ .gitliteignore ignore-tmp.txt
++ cache.tmp wug.txt
+> add cache.tmp
+<<<
+> commit "ignored file"
+No changes added to the commit.
+<<<
++ keep.txt wug.txt
+> add keep.txt
+<<<
+> commit "track keep"
+<<<
++ .gitliteignore ignore-txt.txt
++ keep.txt notwug.txt
+> add keep.txt
+<<<
+> commit "update tracked keep"
+<<<
+- keep.txt
+> checkout -- keep.txt
+<<<
+= keep.txt notwug.txt

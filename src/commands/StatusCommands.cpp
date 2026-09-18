@@ -2,6 +2,7 @@
 #include "../../include/Repository.h"
 #include "../../include/StagingArea.h"
 #include "../../include/Commit.h"
+#include "../../include/IgnoreRules.h"
 #include "../../include/Utils.h"
 
 #include <algorithm>
@@ -16,6 +17,7 @@ void Commands::status() {
     std::vector<std::string> removed = StagingArea::removedFiles();
     std::set<std::string> addedSet(added.begin(), added.end());
     std::set<std::string> removedSet(removed.begin(), removed.end());
+    IgnoreRules ignoreRules;
 
     std::ostringstream out;
     out << "=== Branches ===\n";
@@ -69,7 +71,9 @@ void Commands::status() {
         if (addedSet.count(f)) {
             continue;
         }
-        if (!head.tracks(f) || removedSet.count(f)) {
+        bool untracked = !head.tracks(f) || removedSet.count(f);
+        bool mayBeIgnored = !head.tracks(f) && !addedSet.count(f);
+        if (untracked && !(mayBeIgnored && ignoreRules.ignores(f))) {
             out << f << "\n";
         }
     }

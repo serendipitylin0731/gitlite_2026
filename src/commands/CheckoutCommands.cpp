@@ -3,6 +3,7 @@
 #include "../../include/ObjectStore.h"
 #include "../../include/StagingArea.h"
 #include "../../include/Commit.h"
+#include "../../include/IgnoreRules.h"
 #include "../../include/Utils.h"
 
 void Commands::checkoutAllFiles(const Commit& target) {
@@ -19,9 +20,12 @@ void Commands::checkoutAllFiles(const Commit& target) {
 
 void Commands::assertNoUntrackedInWay(const Commit& target) {
     Commit head = Repository::headCommit();
+    IgnoreRules ignoreRules;
     for (const auto& entry : target.getBlobs()) {
         const std::string& f = entry.first;
-        if (Utils::isFile(f) && !head.tracks(f) && !StagingArea::isStagedForAddition(f)) {
+        if (Utils::isFile(f) && !head.tracks(f)
+                && !StagingArea::isStagedForAddition(f)
+                && !ignoreRules.ignores(f)) {
             Utils::exitWithMessage(
                 "There is an untracked file in the way; delete it, or add and commit it first.");
         }

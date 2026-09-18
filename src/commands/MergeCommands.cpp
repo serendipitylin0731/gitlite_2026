@@ -6,6 +6,7 @@
 #include "../../include/StagingArea.h"
 #include "../../include/CommitGraph.h"
 #include "../../include/Commit.h"
+#include "../../include/IgnoreRules.h"
 #include "../../include/Utils.h"
 
 #include <map>
@@ -96,10 +97,11 @@ void Commands::merge(const std::string& branchName) {
     }
 
     // The merge must not clobber an untracked working file.
+    IgnoreRules ignoreRules;
     for (const auto& entry : actions) {
         if (entry.second == Action::WRITE_GIVEN || entry.second == Action::CONFLICT) {
             const std::string& f = entry.first;
-            if (Utils::isFile(f) && !current.tracks(f)) {
+            if (Utils::isFile(f) && !current.tracks(f) && !ignoreRules.ignores(f)) {
                 Utils::exitWithMessage(
                     "There is an untracked file in the way; delete it, or add and commit it first.");
             }

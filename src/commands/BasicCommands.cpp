@@ -3,6 +3,7 @@
 #include "../../include/ObjectStore.h"
 #include "../../include/StagingArea.h"
 #include "../../include/Commit.h"
+#include "../../include/IgnoreRules.h"
 #include "../../include/Utils.h"
 
 #include <ctime>
@@ -32,6 +33,15 @@ void Commands::add(const std::string& filename) {
     std::string blobId = Utils::sha1(contents);
 
     Commit head = Repository::headCommit();
+    // Ignore rules only apply to untracked files.  A committed file, or a
+    // file already present in the addition stage, remains addable even if a
+    // later rule matches it.
+    IgnoreRules ignoreRules;
+    if (!head.tracks(filename)
+            && !StagingArea::isStagedForAddition(filename)
+            && ignoreRules.ignores(filename)) {
+        return;
+    }
     if (head.tracks(filename) && head.blobId(filename) == blobId) {
         // Identical to the committed version: neither stage it nor keep
         // a pending removal mark for it.
