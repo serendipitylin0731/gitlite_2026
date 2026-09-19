@@ -1,17 +1,8 @@
-# Status with two adds
-I setup1.inc
-> status
-=== Branches ===
-*master
-
-=== Staged Files ===
-f.txt
-g.txt
-
-=== Removed Files ===
-
-=== Modifications Not Staged For Commit ===
-
-=== Untracked Files ===
-
+# Goal: check that commit clears the staging area.
+I setup2.inc
+I blank-status.inc
+> rm f.txt
 <<<
+> commit "Removed f.txt"
+<<<
+I blank-status.inc

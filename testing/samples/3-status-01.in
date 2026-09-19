@@ -1,8 +1,3 @@
-# Check that commit clears the staging area.
-I setup2.inc
-I blank-status.inc
-> rm f.txt
-<<<
-> commit "Removed f.txt"
-<<<
+# Goal: show the empty status sections immediately after initialization.
+I prelude1.inc
 I blank-status.inc

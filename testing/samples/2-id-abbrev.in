@@ -226,4 +226,7 @@ A AMBIG EXPECTED_ASSET ${ID00} version-00.txt ${ID01} version-01.txt ${ID02} ver
 > checkout ${AMBIG} -- marker.txt
 <<<
 = marker.txt ${EXPECTED_ASSET}
-
+# A complete 40-character object ID must resolve to that exact commit.
+> checkout ${ID00} -- marker.txt
+<<<
+= marker.txt version-00.txt

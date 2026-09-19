@@ -1,4 +1,4 @@
-# Test the find command when it succeeds.
+# Goal: find returns every exact-message match, with either valid output order.
 I setup2.inc
 > rm f.txt
 <<<

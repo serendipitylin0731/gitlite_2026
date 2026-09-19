@@ -1,16 +1,14 @@
-# Remove a tracked file and check status.
-I setup2.inc
-> rm f.txt
-<<<
-* f.txt
+# Goal: status with two adds.
+I setup1.inc
 > status
 === Branches ===
 *master
 
 === Staged Files ===
+f.txt
+g.txt
 
 === Removed Files ===
-f.txt
 
 === Modifications Not Staged For Commit ===
 

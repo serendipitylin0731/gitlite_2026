@@ -120,15 +120,15 @@ TEST_SCORES = {
     "2-checkout-02": 1,
     "2-robust": 1,
     "2-id-abbrev": 1,
-    "3-status": 1,
     "3-status-01": 1,
-    "3-status-02": 2,
+    "3-status-02": 1,
     "3-status-03": 2,
-    "3-status-04": 1,
-    "3-status-05": 2,
-    "3-status-06": 1,
+    "3-status-04": 2,
+    "3-status-05": 1,
+    "3-status-06": 2,
     "3-status-07": 1,
     "3-status-08": 1,
+    "3-status-09": 1,
     "3-ignore-status": 1,
     "3-checkout-03": 2,
     "3-checkout-04": 2,
@@ -153,11 +153,11 @@ TEST_SCORES = {
     "5-merge-05": 2,
     "5-merge-06": 2,
     "5-merge-07": 3,
-    "5-merge-08": 2,
-    "5-merge-09": 1,
-    "5-merge-11": 1,
+    "5-merge-08": 3,
+    "5-merge-09": 3,
+    "5-merge-10": 3,
     "5-robust": 1,
-    "6-status-05": 5,
+    "6-status-10": 10,
     "6-remote-01": 3,
     "6-remote-02": 4,
     "6-remote-03": 5,
@@ -172,11 +172,15 @@ TEST_SCORES = {
 SUBTASKS = {
     "Subtask1(init,add,commit,rm)": ["1-init", "1-add-01", "1-add-02", "1-add-03", "1-commit-01", "1-commit-02", "1-rm", "1-robust", "1-ignore-add"],
     "Subtask2(log,find,checkout)": ["2-log", "2-global-log-01", "2-find-01", "2-find-02", "2-checkout-01", "2-checkout-02", "2-id-abbrev", "2-robust"],
-    "Subtask3(status,checkout)": ["3-status", "3-status-01", "3-status-02", "3-status-03", "3-status-04", "3-status-05", "3-status-06", "3-status-07", "3-status-08", "3-checkout-03", "3-checkout-04", "3-checkout-05", "3-ignore-status", "3-robust"],
+    "Subtask3(status,checkout)": ["3-status-01", "3-status-02", "3-status-03", "3-status-04", "3-status-05", "3-status-06", "3-status-07", "3-status-08", "3-status-09", "3-checkout-03", "3-checkout-04", "3-checkout-05", "3-ignore-status", "3-robust"],
     "Subtask4(branch,rm-branch,reset)": ["4-branch-01", "4-branch-02", "4-branch-03", "4-branch-04", "4-rm-branch-01", "4-rm-branch-02", "4-reset-01", "4-reset-02", "4-reset-03", "4-global-log-02", "4-find-03", "4-robust"],
-    "Subtask5(merge)": ["5-merge-01", "5-merge-02", "5-merge-03", "5-merge-04", "5-merge-05", "5-merge-06", "5-merge-07", "5-merge-08", "5-merge-09", "5-merge-11", "5-robust"],
-    "Subtask6(bonus)": ["6-status-05", "6-remote-01", "6-remote-02", "6-remote-03", "6-remote-04", "6-diff-01", "6-diff-02", "6-diff-03", "6-robust"]
+    "Subtask5(merge)": ["5-merge-01", "5-merge-02", "5-merge-03", "5-merge-04", "5-merge-05", "5-merge-06", "5-merge-07", "5-merge-08", "5-merge-09", "5-merge-10", "5-robust"],
+    "Subtask6(bonus)": ["6-status-10", "6-remote-01", "6-remote-02", "6-remote-03", "6-remote-04", "6-diff-01", "6-diff-02", "6-diff-03", "6-robust"]
 }
+
+# Bonus exposes 35 raw points (status 10, remote including robust 15, diff 10),
+# but contributes at most 25 points to the final functional score.
+SUBTASK_CAPS = {"Subtask6(bonus)": 25}
 
 # Tests are isolated, so dependencies are grading prerequisites rather than
 # shared setup.  The runner topologically orders them and skips a dependent
@@ -191,15 +195,15 @@ TEST_DEPENDENCIES = {
     "2-checkout-01": ["1-commit-02"], "2-checkout-02": ["2-checkout-01"],
     "2-id-abbrev": ["2-checkout-02"],
     "2-robust": ["2-log", "2-global-log-01", "2-find-01", "2-checkout-02", "2-id-abbrev"],
-    "3-status": ["1-init"], "3-status-01": ["1-rm"],
-    "3-status-02": ["1-add-01"], "3-status-03": ["1-rm"],
-    "3-status-04": ["1-rm"], "3-status-05": ["1-rm"],
-    "3-status-06": ["1-rm"], "3-status-08": ["1-add-01"],
-    "3-ignore-status": ["1-ignore-add", "3-status"],
+    "3-status-01": ["1-init"], "3-status-02": ["1-rm"],
+    "3-status-03": ["1-add-01"], "3-status-04": ["1-rm"],
+    "3-status-05": ["1-rm"], "3-status-06": ["1-rm"],
+    "3-status-07": ["1-rm"], "3-status-09": ["1-add-01"],
+    "3-ignore-status": ["1-ignore-add", "3-status-01"],
     "3-checkout-03": ["2-checkout-01"],
     "3-checkout-04": ["2-checkout-02"],
     "3-checkout-05": ["2-checkout-02"],
-    "3-robust": ["3-status", "3-checkout-04"],
+    "3-robust": ["3-status-01", "3-checkout-04"],
     "4-branch-01": ["2-checkout-02"], "4-branch-02": ["4-branch-01"],
     "4-branch-03": ["4-branch-01"], "4-branch-04": ["4-branch-01"],
     "4-rm-branch-01": ["4-branch-01"], "4-rm-branch-02": ["4-rm-branch-01"],
@@ -212,14 +216,14 @@ TEST_DEPENDENCIES = {
     "5-merge-04": ["5-merge-01"], "5-merge-05": ["5-merge-01"],
     "5-merge-06": ["5-merge-01"], "5-merge-07": ["5-merge-02"],
     "5-merge-08": ["5-merge-01"], "5-merge-09": ["5-merge-01"],
-    "5-merge-11": ["5-merge-01"],
+    "5-merge-10": ["5-merge-01"],
     "5-robust": ["5-merge-01"],
-    "6-status-05": ["3-status"],
+    "6-status-10": ["3-status-01"],
     "6-remote-01": ["4-branch-01"], "6-remote-02": ["6-remote-01", "5-merge-01"],
     "6-remote-03": ["6-remote-01"], "6-remote-04": ["6-remote-01"],
     "6-diff-01": ["1-commit-02"], "6-diff-02": ["6-diff-01"],
     "6-diff-03": ["6-diff-01"],
-    "6-robust": ["6-remote-01", "6-diff-01", "6-status-05"],
+    "6-robust": ["6-remote-01"],
 }
 
 DEBUG = False
@@ -794,8 +798,20 @@ if __name__ == "__main__":
                 fails += 1
                 failed_tests.append(test_name)
 
+    # Apply group caps only after all raw test points have been accumulated.
+    # This keeps each test's diagnostic weight visible while enforcing the
+    # advertised maximum contribution of the Bonus group.
+    earned_score = sum(
+        min(score['earned'], SUBTASK_CAPS.get(name, score['earned']))
+        for name, score in subtask_scores.items())
+
     print()
     print("Ran {} tests.".format(num_tests))
+    for subtask_name, cap in SUBTASK_CAPS.items():
+        raw = subtask_scores[subtask_name]['earned']
+        if raw > cap:
+            print("{} raw score: {} pts; capped at {} pts."
+                  .format(subtask_name, raw, cap))
     print("Total Score: {} pts".format(earned_score))
     
     if errs == fails == skips == 0:

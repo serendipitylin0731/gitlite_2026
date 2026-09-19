@@ -45,3 +45,19 @@ No need to checkout the current branch.
 <<<
 = wug.txt notwug.txt
 I blank-status.inc
+> log
+===
+commit ${UID2}
+${DATE}
+version 2 of wug.txt
+
+===
+commit ${UID1}
+${DATE}
+version 1 of wug.txt
+
+===
+${COMMIT_HEAD}
+initial commit
+
+<<<*

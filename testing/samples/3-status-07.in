@@ -1,7 +1,19 @@
-# Goal: empty-command and not-initialized error handling.
->
-Please enter a command.
+# Goal: unstage a file deleted with plain Unix 'rm'.
+I setup2.inc
+- f.txt
+> rm f.txt
 <<<
 > status
-Not in an initialized Gitlite directory.
+=== Branches ===
+*master
+
+=== Staged Files ===
+
+=== Removed Files ===
+f.txt
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
 <<<

@@ -1,4 +1,4 @@
-# Extra-credit status lines.
+# Goal: report extra-credit status lines after the nine core status tests.
 I prelude1.inc
 + f.txt wug.txt
 > status

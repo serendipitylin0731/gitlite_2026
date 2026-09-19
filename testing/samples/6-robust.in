@@ -1,4 +1,4 @@
-# Goal: remote and diff operand validation after bonus commands work.
+# Goal: remote operand validation after the remote commands work.
 I prelude1.inc
 > add-remote only-name
 Incorrect operands.
@@ -13,9 +13,6 @@ Incorrect operands.
 Incorrect operands.
 <<<
 > pull remote
-Incorrect operands.
-<<<
-> diff a b c
 Incorrect operands.
 <<<
 I blank-status.inc

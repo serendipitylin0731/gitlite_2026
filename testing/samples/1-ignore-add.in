@@ -12,6 +12,8 @@
 > add missing.tmp
 File does not exist.
 <<<
+* missing.tmp
+I blank-status.inc
 > commit "ignored file"
 No changes added to the commit.
 <<<

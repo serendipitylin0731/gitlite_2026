@@ -133,3 +133,7 @@ diff --gitlite a/empty.txt b/empty.txt
 @@ -1,1 +0,0 @@
 -This is a wug.
 <<<
+# Robustness: diff accepts no operands in this specification.
+> diff a b c
+Incorrect operands.
+<<<

@@ -1,4 +1,4 @@
-# Identical changes on both branches still produce a merge commit.
+# Goal: identical changes on both branches still produce a merge commit.
 I setup2.inc
 > branch other
 <<<

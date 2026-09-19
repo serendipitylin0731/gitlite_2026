@@ -1,10 +1,20 @@
-# Status with a removal followed by an add that restores former
-# contents.  Should simply "unremove" the file without staging.
-I setup2.inc
+# Goal: status with two adds.
+I setup1.inc
 > rm f.txt
 <<<
-* f.txt
-+ f.txt wug.txt
-> add f.txt
-<<<
-I blank-status.inc
+> status
+=== Branches ===
+\*master
+
+=== Staged Files ===
+g.txt
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+(f\.txt)?
+<<<*
+# File was not tracked, so make sure it's still there
+= f.txt wug.txt

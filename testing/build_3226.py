@@ -20,10 +20,11 @@ def load_configuration():
     spec = importlib.util.spec_from_file_location("gitlite_tester", TESTING / "tester.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    return module.TEST_SCORES, module.SUBTASKS, module.TEST_DEPENDENCIES
+    return (module.TEST_SCORES, module.SUBTASKS, module.TEST_DEPENDENCIES,
+            module.SUBTASK_CAPS)
 
 
-def validate(scores, subtasks, dependencies):
+def validate(scores, subtasks, dependencies, caps):
     sample_names = {path.stem for path in (TESTING / "samples").glob("*.in")}
     scored_names = set(scores)
     grouped_names = {name for members in subtasks.values() for name in members}
@@ -33,8 +34,9 @@ def validate(scores, subtasks, dependencies):
             f"unscored={sorted(sample_names - scored_names)}, "
             f"missing={sorted(scored_names - sample_names)}, "
             f"ungrouped={sorted(scored_names - grouped_names)}")
-    if sum(scores.values()) != 110:
-        raise RuntimeError(f"test scores total {sum(scores.values())}, expected 110")
+    unknown_caps = set(caps) - set(subtasks)
+    if unknown_caps:
+        raise RuntimeError(f"caps reference unknown subtasks: {sorted(unknown_caps)}")
     for name, required in dependencies.items():
         if name not in scores or any(item not in scores for item in required):
             raise RuntimeError(f"invalid dependency entry for {name}")
@@ -43,20 +45,33 @@ def validate(scores, subtasks, dependencies):
                       if line.strip()), "")
         if not first.lstrip().startswith("#"):
             raise RuntimeError(f"{sample.name} has no leading test-goal comment")
-    expected_groups = [10, 10, 20, 20, 20, 30]
+    expected_groups = [10, 10, 20, 20, 25, 35]
     actual_groups = [sum(scores[name] for name in members) for members in subtasks.values()]
     if actual_groups != expected_groups:
         raise RuntimeError(f"subtask totals are {actual_groups}, expected {expected_groups}")
+    effective_groups = [min(total, caps.get(name, total))
+                        for (name, _), total in zip(subtasks.items(), actual_groups)]
+    if effective_groups != [10, 10, 20, 20, 25, 25] or sum(effective_groups) != 110:
+        raise RuntimeError(f"effective subtask totals are {effective_groups}, expected 110")
+    bonus = subtasks["Subtask6(bonus)"]
+    status = sum(scores[name] for name in bonus if "-status-" in name)
+    remote = sum(scores[name] for name in bonus
+                 if "-remote-" in name or name == "6-robust")
+    diff = sum(scores[name] for name in bonus if "-diff-" in name)
+    if [status, remote, diff] != [10, 15, 10]:
+        raise RuntimeError(
+            f"bonus category totals are {[status, remote, diff]}, expected [10, 15, 10]")
 
 
 def synchronize():
-    for destination in [STUDENT / "testing" / "samples", PACKAGE / "samples"]:
-        shutil.rmtree(destination, ignore_errors=True)
-        shutil.copytree(TESTING / "samples", destination)
-    for destination in [STUDENT / "testing" / "src", PACKAGE / "test-assets"]:
-        shutil.rmtree(destination, ignore_errors=True)
-        shutil.copytree(TESTING / "src", destination)
-    shutil.copy2(TESTING / "tester.py", STUDENT / "testing" / "tester.py")
+    # The student-facing smoke tests are intentionally smaller and independent
+    # from the grading suite.  Rebuilding 3226 must never overwrite them.
+    destination = PACKAGE / "samples"
+    shutil.rmtree(destination, ignore_errors=True)
+    shutil.copytree(TESTING / "samples", destination)
+    destination = PACKAGE / "test-assets"
+    shutil.rmtree(destination, ignore_errors=True)
+    shutil.copytree(TESTING / "src", destination)
 
     starter = PACKAGE / "starter"
     for name in ["include", "src"]:
@@ -118,17 +133,22 @@ def main():
     parser.add_argument("--program", type=Path,
                         help="compiled complete implementation used to validate all six groups")
     args = parser.parse_args()
-    scores, subtasks, dependencies = load_configuration()
-    validate(scores, subtasks, dependencies)
+    scores, subtasks, dependencies, caps = load_configuration()
+    validate(scores, subtasks, dependencies, caps)
     synchronize()
-    for index, members in enumerate(subtasks.values(), 1):
-        total = sum(scores[name] for name in members)
+    for index, (group, members) in enumerate(subtasks.items(), 1):
+        raw_total = sum(scores[name] for name in members)
+        total = min(raw_total, caps.get(group, raw_total))
         (PACKAGE / f"{index}.ans").write_bytes(bundle_bytes(total, members))
         (PACKAGE / f"{index}.in").write_bytes(b"\n")
     build_checker()
     verify(args.program, subtasks)
     make_zip()
-    print(f"Built {STUDENT / '3226.zip'}: {len(scores)} tests, {sum(scores.values())} points")
+    effective_total = sum(
+        min(sum(scores[name] for name in members), caps.get(group, float("inf")))
+        for group, members in subtasks.items())
+    print(f"Built {STUDENT / '3226.zip'}: {len(scores)} tests, "
+          f"{effective_total:g} effective points")
 
 
 if __name__ == "__main__":

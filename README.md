@@ -480,7 +480,7 @@ contents of file in given branch
 
 ### Subtask6 (Bonus)
 
-在本子任务中，你可以选择完善`status`功能、完成`remote`功能（包括`add-remote`,`rm-remote`,`push`,`fetch`,`pull`），或者完成`diff`功能，也可以三者兼有。评测样例中`6-status-05`（5 分）、`6-remote-01`（3 分）、`6-remote-02`与`6-remote-03`（各 5 分）、`6-remote-04`（2 分），以及`6-diff-01`~`6-diff-03`（共 10 分）均计入总分，因此若想取得 Bonus 满分，三者都需要完成。
+在本子任务中，你可以选择完善`status`功能、完成`remote`功能（包括`add-remote`,`rm-remote`,`push`,`fetch`,`pull`），或者完成`diff`功能，也可以三者兼有。Bonus 提供 35 个原始分：`6-status-10`为 10 分，`6-remote-01`~`6-remote-04`连同远程命令的`6-robust`共 15 分，`6-diff-01`~`6-diff-03`共 10 分。Bonus 最终最多计入 25 分；原始得分超过 25 分时按 25 分计算。
 
 #### `status`（用法：`gitlite status`）
 
@@ -667,14 +667,14 @@ python3 tester.py samples/*.in
 3-checkout-04: OK (2pts/2pts)
 3-checkout-05: OK (2pts/2pts)
 3-status-01: OK (1pts/1pts)
-3-status-02: OK (2pts/2pts)
+3-status-02: OK (1pts/1pts)
 3-status-03: OK (2pts/2pts)
-3-status-04: OK (1pts/1pts)
-3-status-05: OK (2pts/2pts)
-3-status-06: OK (1pts/1pts)
+3-status-04: OK (2pts/2pts)
+3-status-05: OK (1pts/1pts)
+3-status-06: OK (2pts/2pts)
 3-status-07: OK (1pts/1pts)
 3-status-08: OK (1pts/1pts)
-3-status: OK (1pts/1pts)
+3-status-09: OK (1pts/1pts)
 3-ignore-status: OK (1pts/1pts)
 3-robust: OK (1pts/1pts)
 4-branch-01: OK (2pts/2pts)
@@ -696,9 +696,9 @@ python3 tester.py samples/*.in
 5-merge-05: OK (2pts/2pts)
 5-merge-06: OK (2pts/2pts)
 5-merge-07: OK (3pts/3pts)
-5-merge-08: OK (2pts/2pts)
-5-merge-09: OK (1pts/1pts)
-5-merge-11: OK (1pts/1pts)
+5-merge-08: OK (3pts/3pts)
+5-merge-09: OK (3pts/3pts)
+5-merge-10: OK (3pts/3pts)
 5-robust: OK (1pts/1pts)
 6-diff-01: OK (3pts/3pts)
 6-diff-02: OK (4pts/4pts)
@@ -707,10 +707,11 @@ python3 tester.py samples/*.in
 6-remote-02: OK (4pts/4pts)
 6-remote-03: OK (5pts/5pts)
 6-remote-04: OK (2pts/2pts)
-6-status-05: OK (5pts/5pts)
+6-status-10: OK (10pts/10pts)
 6-robust: OK (1pts/1pts)
 
 Ran 63 tests.
+Subtask6(bonus) raw score: 35 pts; capped at 25 pts.
 Total Score: 110 pts
 All tests passed!
 ```
@@ -731,9 +732,9 @@ All tests passed!
 
 `Subtask 4`: 20 `pts`
 
-`Subtask 5`: 20 `pts`
+`Subtask 5`: 25 `pts`
 
-`Subtask 6`: 30 `pts`
+`Subtask 6 (Bonus)`: 25 `pts`（提供 35 个原始分，封顶计 25 分）
 
 对于 Code Style 部分，我们会根据你的`DESIGN.md`以及代码布局与风格进行给分，包括但不限于适当的注释，合理的空行，优秀的板块设计等等，占 5 `pts`。优秀者可适度给 6-7 `pts`，用于弥补其他部分的失分（总分封顶见下文）。
 

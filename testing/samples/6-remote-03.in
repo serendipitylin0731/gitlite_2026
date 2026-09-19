@@ -116,6 +116,61 @@ pending.txt
 > fetch R1 glorp
 That remote does not have that branch.
 <<<
+> status
+=== Branches ===
+R1/master
+*master
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<
+> log
+===
+commit ${R2_K}
+${DATE}
+Add k in repo 2
+
+===
+commit ${R2_INIT}
+${DATE}
+initial commit
+
+<<<*
 > push R1 master
 Please pull down remote changes before pushing.
 <<<
+= k.txt wug2.txt
+> log
+===
+commit ${R2_K}
+${DATE}
+Add k in repo 2
+
+===
+commit ${R2_INIT}
+${DATE}
+initial commit
+
+<<<*
+C D1
+= f.txt wug.txt
+= g.txt notwug.txt
+* k.txt
+> log
+===
+commit ${R1_TWO}
+${DATE}
+Two files
+
+===
+commit ${R1_INIT}
+${DATE}
+initial commit
+
+<<<*
