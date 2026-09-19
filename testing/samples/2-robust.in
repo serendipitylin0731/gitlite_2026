@@ -1,0 +1,18 @@
+# Goal: history and file-checkout operand validation after Subtask 2 works.
+I prelude1.inc
+> log extra
+Incorrect operands.
+<<<
+> global-log extra
+Incorrect operands.
+<<<
+> find
+Incorrect operands.
+<<<
+> find one two
+Incorrect operands.
+<<<
+> checkout a b c d
+Incorrect operands.
+<<<
+I blank-status.inc

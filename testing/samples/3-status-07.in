@@ -1,3 +1,4 @@
+# Goal: empty-command and not-initialized error handling.
 >
 Please enter a command.
 <<<

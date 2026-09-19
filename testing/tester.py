@@ -1,4 +1,4 @@
-import sys, re, shlex
+import sys, re, shlex, difflib
 from subprocess import \
      check_output, PIPE, STDOUT, DEVNULL, CalledProcessError, TimeoutExpired
 from os.path import abspath, basename, dirname, exists, isfile, join, splitext
@@ -69,7 +69,10 @@ The instructions each have one of the following forms:
           --progdir is provided.
    = NAME F
           Check that the file named NAME is identical to src/F, and report an
-          error if not.
+          error if not. CRLF and LF text line endings are treated alike.
+   B NAME F
+          Compare NAME with src/F byte-for-byte (for binary and line-ending
+          preservation tests).
    * NAME
           Check that the file NAME does not exist, and report an error if it
           does.
@@ -80,6 +83,9 @@ The instructions each have one of the following forms:
           Defines the variable VAR to have the literal value VALUE.  VALUE is
           taken to be a raw Python string (as in r"VALUE").  Substitutions are
           first applied to VALUE.
+   A PREFIX_VAR ASSET_VAR ID ASSET [ID ASSET ...]
+          Find a one-character prefix shared by at least two IDs. Store that
+          prefix and the asset paired with the lexicographically first match.
 
 For each TEST.in, reports at most one error.  Without the --show option,
 simply indicates tests passed and failed. If N is positive, also prints details
@@ -103,20 +109,22 @@ TEST_SCORES = {
     "1-add-03": 1,
     "1-commit-01": 1,
     "1-commit-02": 1,
-    "1-rm": 2,
-    "1-robust": 1,
+    "1-rm": 1,
+    "1-robust": 2,
     "1-ignore-add": 1,
-    "2-log": 2,
+    "2-log": 1,
     "2-global-log-01": 1,
     "2-find-01": 2,
     "2-find-02": 1,
     "2-checkout-01": 2,
-    "2-checkout-02": 2,
+    "2-checkout-02": 1,
+    "2-robust": 1,
+    "2-id-abbrev": 1,
     "3-status": 1,
-    "3-status-01": 2,
+    "3-status-01": 1,
     "3-status-02": 2,
     "3-status-03": 2,
-    "3-status-04": 2,
+    "3-status-04": 1,
     "3-status-05": 2,
     "3-status-06": 1,
     "3-status-07": 1,
@@ -124,18 +132,20 @@ TEST_SCORES = {
     "3-ignore-status": 1,
     "3-checkout-03": 2,
     "3-checkout-04": 2,
-    "3-checkout-05": 1,
+    "3-checkout-05": 2,
+    "3-robust": 1,
     "4-branch-01": 2,
     "4-branch-02": 2,
     "4-branch-03": 2,
     "4-branch-04": 1,
-    "4-rm-branch-01": 3,
+    "4-rm-branch-01": 2,
     "4-rm-branch-02": 2,
     "4-reset-01": 2,
     "4-reset-02": 3,
     "4-reset-03": 1,
     "4-global-log-02": 1,
     "4-find-03": 1,
+    "4-robust": 1,
     "5-merge-01": 2,
     "5-merge-02": 2,
     "5-merge-03": 2,
@@ -143,27 +153,73 @@ TEST_SCORES = {
     "5-merge-05": 2,
     "5-merge-06": 2,
     "5-merge-07": 3,
-    "5-merge-08": 3,
+    "5-merge-08": 2,
     "5-merge-09": 1,
     "5-merge-11": 1,
+    "5-robust": 1,
     "6-status-05": 5,
     "6-remote-01": 3,
-    "6-remote-02": 5,
+    "6-remote-02": 4,
     "6-remote-03": 5,
     "6-remote-04": 2,
     "6-diff-01": 3,
     "6-diff-02": 4,
-    "6-diff-03": 3
+    "6-diff-03": 3,
+    "6-robust": 1
 }
 
 # Subtask groupings
 SUBTASKS = {
     "Subtask1(init,add,commit,rm)": ["1-init", "1-add-01", "1-add-02", "1-add-03", "1-commit-01", "1-commit-02", "1-rm", "1-robust", "1-ignore-add"],
-    "Subtask2(log,find,checkout)": ["2-log", "2-global-log-01", "2-find-01", "2-find-02", "2-checkout-01", "2-checkout-02"],
-    "Subtask3(status,checkout)": ["3-status", "3-status-01", "3-status-02", "3-status-03", "3-status-04", "3-status-05", "3-status-06", "3-status-07", "3-status-08", "3-checkout-03", "3-checkout-04", "3-checkout-05", "3-ignore-status"],
-    "Subtask4(branch,rm-branch,reset)": ["4-branch-01", "4-branch-02", "4-branch-03", "4-branch-04", "4-rm-branch-01", "4-rm-branch-02", "4-reset-01", "4-reset-02", "4-reset-03", "4-global-log-02", "4-find-03"],
-    "Subtask5(merge)": ["5-merge-01", "5-merge-02", "5-merge-03", "5-merge-04", "5-merge-05", "5-merge-06", "5-merge-07", "5-merge-08", "5-merge-09", "5-merge-11"],
-    "Subtask6(bonus)": ["6-status-05", "6-remote-01", "6-remote-02", "6-remote-03", "6-remote-04", "6-diff-01", "6-diff-02", "6-diff-03"]
+    "Subtask2(log,find,checkout)": ["2-log", "2-global-log-01", "2-find-01", "2-find-02", "2-checkout-01", "2-checkout-02", "2-id-abbrev", "2-robust"],
+    "Subtask3(status,checkout)": ["3-status", "3-status-01", "3-status-02", "3-status-03", "3-status-04", "3-status-05", "3-status-06", "3-status-07", "3-status-08", "3-checkout-03", "3-checkout-04", "3-checkout-05", "3-ignore-status", "3-robust"],
+    "Subtask4(branch,rm-branch,reset)": ["4-branch-01", "4-branch-02", "4-branch-03", "4-branch-04", "4-rm-branch-01", "4-rm-branch-02", "4-reset-01", "4-reset-02", "4-reset-03", "4-global-log-02", "4-find-03", "4-robust"],
+    "Subtask5(merge)": ["5-merge-01", "5-merge-02", "5-merge-03", "5-merge-04", "5-merge-05", "5-merge-06", "5-merge-07", "5-merge-08", "5-merge-09", "5-merge-11", "5-robust"],
+    "Subtask6(bonus)": ["6-status-05", "6-remote-01", "6-remote-02", "6-remote-03", "6-remote-04", "6-diff-01", "6-diff-02", "6-diff-03", "6-robust"]
+}
+
+# Tests are isolated, so dependencies are grading prerequisites rather than
+# shared setup.  The runner topologically orders them and skips a dependent
+# test when any prerequisite fails or is skipped.
+TEST_DEPENDENCIES = {
+    "1-add-01": ["1-init"], "1-add-02": ["1-init"],
+    "1-add-03": ["1-add-01"], "1-ignore-add": ["1-add-01"],
+    "1-commit-01": ["1-init"], "1-commit-02": ["1-add-01"],
+    "1-rm": ["1-add-01"],
+    "2-log": ["1-commit-02"], "2-global-log-01": ["2-log"],
+    "2-find-01": ["2-log"], "2-find-02": ["2-find-01"],
+    "2-checkout-01": ["1-commit-02"], "2-checkout-02": ["2-checkout-01"],
+    "2-id-abbrev": ["2-checkout-02"],
+    "2-robust": ["2-log", "2-global-log-01", "2-find-01", "2-checkout-02", "2-id-abbrev"],
+    "3-status": ["1-init"], "3-status-01": ["1-rm"],
+    "3-status-02": ["1-add-01"], "3-status-03": ["1-rm"],
+    "3-status-04": ["1-rm"], "3-status-05": ["1-rm"],
+    "3-status-06": ["1-rm"], "3-status-08": ["1-add-01"],
+    "3-ignore-status": ["1-ignore-add", "3-status"],
+    "3-checkout-03": ["2-checkout-01"],
+    "3-checkout-04": ["2-checkout-02"],
+    "3-checkout-05": ["2-checkout-02"],
+    "3-robust": ["3-status", "3-checkout-04"],
+    "4-branch-01": ["2-checkout-02"], "4-branch-02": ["4-branch-01"],
+    "4-branch-03": ["4-branch-01"], "4-branch-04": ["4-branch-01"],
+    "4-rm-branch-01": ["4-branch-01"], "4-rm-branch-02": ["4-rm-branch-01"],
+    "4-reset-01": ["4-branch-01"], "4-reset-02": ["4-reset-01"],
+    "4-reset-03": ["4-reset-01"], "4-global-log-02": ["2-global-log-01"],
+    "4-find-03": ["2-find-01"],
+    "4-robust": ["4-branch-01", "4-rm-branch-01", "4-reset-01"],
+    "5-merge-01": ["4-branch-01"],
+    "5-merge-02": ["5-merge-01"], "5-merge-03": ["5-merge-01"],
+    "5-merge-04": ["5-merge-01"], "5-merge-05": ["5-merge-01"],
+    "5-merge-06": ["5-merge-01"], "5-merge-07": ["5-merge-02"],
+    "5-merge-08": ["5-merge-01"], "5-merge-09": ["5-merge-01"],
+    "5-merge-11": ["5-merge-01"],
+    "5-robust": ["5-merge-01"],
+    "6-status-05": ["3-status"],
+    "6-remote-01": ["4-branch-01"], "6-remote-02": ["6-remote-01", "5-merge-01"],
+    "6-remote-03": ["6-remote-01"], "6-remote-04": ["6-remote-01"],
+    "6-diff-01": ["1-commit-02"], "6-diff-02": ["6-diff-01"],
+    "6-diff-03": ["6-diff-01"],
+    "6-robust": ["6-remote-01", "6-diff-01", "6-status-05"],
 }
 
 DEBUG = False
@@ -294,10 +350,46 @@ def correctFileOutput(name, expected, dir):
     stdData = canonicalize(contents(join(src_dir, expected)))
     return userData == stdData
 
+def correctFileBytes(name, expected, dir):
+    try:
+        with open(join(dir, name), 'rb') as actual_file:
+            actual = actual_file.read()
+        with open(join(src_dir, expected), 'rb') as expected_file:
+            wanted = expected_file.read()
+        return actual == wanted
+    except OSError:
+        return False
+
 def write_file(test, tag, expected, actual):
-    contents = "{}: \n{}: \nExpected: {}\nActual: {}\n".format(test, tag, expected, actual)
+    expected_text = '\n'.join(expected) if isinstance(expected, list) else str(expected)
+    actual_text = '' if actual is None else str(actual)
+    delta = ''.join(difflib.unified_diff(
+        expected_text.splitlines(True), actual_text.splitlines(True),
+        fromfile='expected', tofile='actual'))
+    report = "{}:\ncommand/check: {}\nExpected:\n{}\nActual:\n{}\nDiff:\n{}\n".format(
+        test, tag, expected_text, actual_text, delta or '(no textual diff)')
     with open("out.txt", 'a') as f:
-        f.write(contents)
+        f.write(report)
+
+def write_file_comparison(test, name, expected, directory, exact):
+    actual_path, expected_path = join(directory, name), join(src_dir, expected)
+    try:
+        actual = open(actual_path, 'rb').read()
+    except OSError:
+        actual = b''
+    try:
+        wanted = open(expected_path, 'rb').read()
+    except OSError:
+        wanted = b''
+    if not exact:
+        actual = actual.replace(b'\r', b'')
+        wanted = wanted.replace(b'\r', b'')
+    try:
+        write_file(test, "file " + name,
+                   wanted.decode('utf-8').splitlines(), actual.decode('utf-8'))
+    except UnicodeDecodeError:
+        write_file(test, "binary file " + name,
+                   [wanted.hex(' ')], actual.hex(' '))
 
 def correctProgramOutput(expected, actual, last_groups, is_regexp):
     expected = '\n'.join(expected)
@@ -467,27 +559,57 @@ def doTest(test):
                             reportDetails(test, included_files, line_num)
                             msg = "incorrect output"
                     if msg != "OK":
+                        if msg != "incorrect output":
+                            write_file(test, cmnd, ["command completed"], msg)
                         print("{}: FAILED ({}) (0pts/{}pts)".format(base, msg, test_score))
                         return False, test_score
                 elif Match(r'=\s*(\S+)\s+(\S+)', line):
                     if not correctFileOutput(Group(1), Group(2), cdir):
+                        write_file_comparison(test, Group(1), Group(2), cdir, False)
                         print("ERROR (file {} has incorrect content) (0pts/{}pts)"
+                              .format(Group(1), test_score))
+                        reportDetails(test, included_files, line_num)
+                        return False, test_score
+                elif Match(r'B\s+(\S+)\s+(\S+)', line):
+                    if not correctFileBytes(Group(1), Group(2), cdir):
+                        write_file_comparison(test, Group(1), Group(2), cdir, True)
+                        print("ERROR (file {} differs byte-for-byte) (0pts/{}pts)"
                               .format(Group(1), test_score))
                         reportDetails(test, included_files, line_num)
                         return False, test_score
                 elif Match(r'\*\s*(\S+)', line):
                     if fileExists(Group(1), cdir):
+                        write_file(test, "absence of " + Group(1), ["file absent"], "file present")
                         print("ERROR (file {} present) (0pts/{}pts)".format(Group(1), test_score))
                         reportDetails(test, included_files, line_num)
                         return False, test_score
                 elif Match(r'E\s*(\S+)', line):
                     if not fileExists(Group(1), cdir):
+                        write_file(test, "existence of " + Group(1), ["file present"], "file absent")
                         print("ERROR (file or directory {} not present) (0pts/{}pts)"
                               .format(Group(1), test_score))
                         reportDetails(test, included_files, line_num)
                         return False, test_score
                 elif Match(r'(?s)D\s*([a-zA-Z_][a-zA-Z_0-9]*)\s*"(.*)"\s*$', line):
                     defns[Group(1)] = Group(2)
+                elif line.startswith('A '):
+                    parts = shlex.split(line)
+                    if len(parts) < 7 or (len(parts) - 3) % 2:
+                        raise ValueError("bad ambiguous-prefix instruction")
+                    prefix_var, asset_var = parts[1], parts[2]
+                    pairs = list(zip(parts[3::2], parts[4::2]))
+                    buckets = {}
+                    for commit_id, asset in pairs:
+                        if not re.fullmatch(r'[0-9a-f]{40}', commit_id):
+                            raise ValueError("bad commit id in A instruction")
+                        buckets.setdefault(commit_id[0], []).append((commit_id, asset))
+                    choices = sorted(key for key, values in buckets.items() if len(values) >= 2)
+                    if not choices:
+                        raise ValueError("A instruction has no ambiguous prefix")
+                    prefix = choices[0]
+                    commit_id, asset = min(buckets[prefix])
+                    defns[prefix_var] = prefix
+                    defns[asset_var] = asset
                 else:
                     raise ValueError("bad test line at {}".format(line_num))
         print("{}: OK ({}pts/{}pts)".format(base, test_score, test_score))
@@ -564,79 +686,126 @@ if __name__ == "__main__":
     if exists("out.txt"):
         remove("out.txt")
 
-    num_tests = len(files)
+    requested_paths = {}
+    for path in files:
+        if exists(path):
+            requested_paths[splitext(basename(path))[0]] = path
+
+    # Include prerequisites even when the caller asks for a single advanced
+    # test. Only explicitly requested tests contribute to the reported score.
+    search_dirs = list(dict.fromkeys(dirname(path) for path in files))
+    all_paths = dict(requested_paths)
+    ordered_names = []
+    visiting = set()
+    visited = set()
+
+    def locate_test(name):
+        if name in all_paths:
+            return all_paths[name]
+        for directory in search_dirs:
+            candidate = join(directory, name + '.in')
+            if exists(candidate):
+                all_paths[name] = candidate
+                return candidate
+        raise ValueError("missing prerequisite test {}".format(name))
+
+    def visit_test(name):
+        if name in visited:
+            return
+        if name in visiting:
+            raise ValueError("cyclic test dependency involving {}".format(name))
+        visiting.add(name)
+        locate_test(name)
+        for dependency in TEST_DEPENDENCIES.get(name, []):
+            visit_test(dependency)
+        visiting.remove(name)
+        visited.add(name)
+        ordered_names.append(name)
+
+    try:
+        for name in requested_paths:
+            visit_test(name)
+    except ValueError as excp:
+        print("FAILED ({})".format(excp), file=sys.stderr)
+        sys.exit(1)
+
+    num_tests = len(requested_paths)
     errs = 0
     fails = 0
+    skips = 0
     total_score = 0
     earned_score = 0
     failed_tests = []
+    skipped_tests = []
+    outcomes = {}
     
     # Track subtask scores
     subtask_scores = {}
     for subtask_name, test_list in SUBTASKS.items():
         subtask_scores[subtask_name] = {'earned': 0, 'total': 0, 'tests': []}
 
-    for test in files:
+    for test_name in requested_paths:
+        test_points = TEST_SCORES.get(test_name, 0)
+        total_score += test_points
+        for subtask_name, test_list in SUBTASKS.items():
+            if test_name in test_list:
+                subtask_scores[subtask_name]['total'] += test_points
+                break
+
+    for test_name in ordered_names:
+        test = all_paths[test_name]
+        requested = test_name in requested_paths
+        test_points = TEST_SCORES.get(test_name, 0)
+        failed_dependency = next(
+            (dependency for dependency in TEST_DEPENDENCIES.get(test_name, [])
+             if outcomes.get(dependency) != 'passed'), None)
+        if failed_dependency is not None:
+            outcomes[test_name] = 'skipped'
+            if requested:
+                skips += 1
+                skipped_tests.append(test_name)
+                print("{}: SKIPPED (prerequisite {} did not pass) (0pts/{}pts)"
+                      .format(test_name, failed_dependency, test_points))
+            continue
         try:
-            if not exists(test):
-                num_tests -= 1
+            result = doTest(test)
+            success = result[0] if isinstance(result, tuple) else bool(result)
+            outcomes[test_name] = 'passed' if success else 'failed'
+            if not requested:
+                continue
+            current_subtask = next(
+                (name for name, members in SUBTASKS.items() if test_name in members), None)
+            if success:
+                earned_score += test_points
+                if current_subtask:
+                    subtask_scores[current_subtask]['earned'] += test_points
+                    subtask_scores[current_subtask]['tests'].append((test_name, True, test_points))
             else:
-                test_name = splitext(basename(test))[0]
-                test_points = TEST_SCORES.get(test_name, 0)
-                total_score += test_points
-                
-                # Find which subtask this test belongs to
-                current_subtask = None
-                for subtask_name, test_list in SUBTASKS.items():
-                    if test_name in test_list:
-                        current_subtask = subtask_name
-                        subtask_scores[subtask_name]['total'] += test_points
-                        break
-                
-                result = doTest(test)
-                if isinstance(result, tuple):
-                    success, points = result
-                    if success:
-                        earned_score += points
-                        if current_subtask:
-                            subtask_scores[current_subtask]['earned'] += points
-                            subtask_scores[current_subtask]['tests'].append((test_name, True, points))
-                    else:
-                        errs += 1
-                        failed_tests.append(test_name)
-                        if current_subtask:
-                            subtask_scores[current_subtask]['tests'].append((test_name, False, 0))
-                        if type(show) is int:
-                            show -= 1
-                else:
-                    # Old format compatibility
-                    if not result:
-                        errs += 1
-                        failed_tests.append(test_name)
-                        if current_subtask:
-                            subtask_scores[current_subtask]['tests'].append((test_name, False, 0))
-                        if type(show) is int:
-                            show -= 1
-                    else:
-                        earned_score += test_points
-                        if current_subtask:
-                            subtask_scores[current_subtask]['earned'] += test_points
-                            subtask_scores[current_subtask]['tests'].append((test_name, True, test_points))
+                errs += 1
+                failed_tests.append(test_name)
+                if current_subtask:
+                    subtask_scores[current_subtask]['tests'].append((test_name, False, 0))
+                if type(show) is int:
+                    show -= 1
         except ValueError as excp:
-            print("FAILED ({})".format(excp.args[0]))
-            fails += 1
-            test_name = splitext(basename(test))[0]
-            failed_tests.append(test_name)
+            outcomes[test_name] = 'failed'
+            if requested:
+                print("{}: FAILED ({})".format(test_name, excp.args[0]))
+                fails += 1
+                failed_tests.append(test_name)
 
     print()
     print("Ran {} tests.".format(num_tests))
     print("Total Score: {} pts".format(earned_score))
     
-    if errs == fails == 0:
+    if errs == fails == skips == 0:
         print("All tests passed!")
     else:
-        passed_tests = num_tests - errs - fails
-        print("{} tests passed, {} tests failed.".format(passed_tests, errs + fails))
+        passed_tests = num_tests - errs - fails - skips
+        print("{} tests passed, {} tests failed, {} tests skipped."
+              .format(passed_tests, errs + fails, skips))
         if failed_tests:
             print("Failed tests: {}".format(", ".join(failed_tests)))
+        if skipped_tests:
+            print("Skipped tests: {}".format(", ".join(skipped_tests)))
         sys.exit(1)

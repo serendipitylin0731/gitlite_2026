@@ -1,0 +1,18 @@
+# Goal: branch, branch-removal and reset operand validation.
+I prelude1.inc
+> branch
+Incorrect operands.
+<<<
+> rm-branch
+Incorrect operands.
+<<<
+> reset
+Incorrect operands.
+<<<
+> branch one two
+Incorrect operands.
+<<<
+> reset one two
+Incorrect operands.
+<<<
+I blank-status.inc

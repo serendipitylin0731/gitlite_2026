@@ -1,4 +1,4 @@
-# Check that we can check out a previous version.
+# Goal: checkout error diagnostics are atomic and do not alter the worktree.
 I prelude1.inc
 + wug.txt wug.txt
 > add wug.txt
@@ -43,3 +43,5 @@ No such branch exists.
 > checkout master
 No need to checkout the current branch.
 <<<
+= wug.txt notwug.txt
+I blank-status.inc

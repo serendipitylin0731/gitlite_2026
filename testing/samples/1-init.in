@@ -1,4 +1,4 @@
-# Basic initialization
+# Goal: initialization layout, deterministic initial commit, and repeat-init safety.
 > init
 <<<
 E .gitlite
@@ -26,6 +26,16 @@ initial commit
 D INITIAL_ID "${1}"
 > init
 A Gitlite version-control system already exists in the current directory.
+<<<
+> log
+===
+commit ${INITIAL_ID}
+${DATE}
+initial commit
+
+<<<*
+C SECOND
+> init
 <<<
 > log
 ===

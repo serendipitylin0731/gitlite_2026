@@ -1,4 +1,4 @@
-# Test for wrong command name.
+# Goal: global command dispatch, initialization precedence, and operand validation.
 > glorp foo
 No command with that name exists.
 <<<
@@ -13,6 +13,10 @@ Incorrect operands.
 > add
 Incorrect operands.
 <<<
-> status extra
+> commit
 Incorrect operands.
 <<<
+> rm
+Incorrect operands.
+<<<
+I blank-status.inc

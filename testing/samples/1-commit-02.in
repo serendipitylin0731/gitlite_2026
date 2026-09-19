@@ -1,4 +1,4 @@
-# Commit message with blank message
+# Goal: staged snapshots preserve exact empty, binary, CRLF and no-newline bytes.
 I prelude1.inc
 + f.txt wug.txt
 > add f.txt
@@ -26,3 +26,33 @@ f.txt
 > checkout -- f.txt
 <<<
 = f.txt wug.txt
++ empty.bin empty.bin
++ binary.bin binary.bin
++ windows.txt crlf.txt
++ nonewline.txt no-final-newline.txt
+> add empty.bin
+<<<
+> add binary.bin
+<<<
+> add windows.txt
+<<<
+> add nonewline.txt
+<<<
+> commit "byte exact files"
+<<<
+- empty.bin
++ binary.bin binary-other.bin
++ windows.txt wug.txt
++ nonewline.txt notwug.txt
+> checkout -- empty.bin
+<<<
+> checkout -- binary.bin
+<<<
+> checkout -- windows.txt
+<<<
+> checkout -- nonewline.txt
+<<<
+B empty.bin empty.bin
+B binary.bin binary.bin
+B windows.txt crlf.txt
+B nonewline.txt no-final-newline.txt

@@ -11,6 +11,18 @@ I setup2.inc
 <<<
 > checkout other
 <<<
++ staged.txt wug.txt
+> add staged.txt
+<<<
+> merge missing
+You have uncommitted changes.
+<<<
+> merge other
+You have uncommitted changes.
+<<<
+> rm staged.txt
+<<<
+- staged.txt
 > merge other
 Cannot merge a branch with itself.
 <<<
@@ -42,3 +54,30 @@ You have uncommitted changes.
 <<<
 - k.txt
 I blank-status2.inc
+
+# Ignored untracked files may be overwritten by a non-fast-forward merge.
+C IGNORED
+> init
+<<<
+> branch other
+<<<
+> checkout other
+<<<
++ k.txt wug3.txt
+> add k.txt
+<<<
+> commit "add k on other"
+<<<
+> checkout master
+<<<
++ m.txt wug2.txt
+> add m.txt
+<<<
+> commit "diverge master"
+<<<
++ .gitliteignore ignore-k.txt
++ k.txt wug.txt
+> merge other
+<<<
+= k.txt wug3.txt
+= m.txt wug2.txt

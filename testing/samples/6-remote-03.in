@@ -19,6 +19,9 @@ D R1_INIT "${2}"
 C D2
 > init
 <<<
++ pending.txt wug.txt
+> add pending.txt
+<<<
 > fetch missing master
 Remote directory not found.
 <<<
@@ -28,6 +31,23 @@ Remote directory not found.
 > pull missing master
 Remote directory not found.
 <<<
+> status
+=== Branches ===
+*master
+
+=== Staged Files ===
+pending.txt
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<
+> rm pending.txt
+<<<
+- pending.txt
 + k.txt wug2.txt
 > add k.txt
 <<<
@@ -66,6 +86,33 @@ A remote with that name does not exist.
 <<<
 > add-remote R1 ../D1/.gitlite
 <<<
++ pending.txt wug.txt
+> add pending.txt
+<<<
+> pull R1 glorp
+That remote does not have that branch.
+<<<
+> pull R1 master
+You have uncommitted changes.
+<<<
+> status
+=== Branches ===
+R1/master
+*master
+
+=== Staged Files ===
+pending.txt
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<
+> rm pending.txt
+<<<
+- pending.txt
 > fetch R1 glorp
 That remote does not have that branch.
 <<<

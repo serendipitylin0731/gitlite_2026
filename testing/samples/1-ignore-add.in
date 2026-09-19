@@ -1,25 +1,58 @@
-# Ignored untracked files are not staged, while tracked files remain addable.
+# Goal: ignore-rule add semantics, precedence, escaping, and tracked exceptions.
 > init
 <<<
-+ .gitliteignore ignore-tmp.txt
++ .gitliteignore ignore-track.txt
+> add .gitliteignore
+<<<
+> commit "track ignore rules"
+<<<
 + cache.tmp wug.txt
 > add cache.tmp
+<<<
+> add missing.tmp
+File does not exist.
 <<<
 > commit "ignored file"
 No changes added to the commit.
 <<<
-+ keep.txt wug.txt
-> add keep.txt
++ .gitliteignore ignore-edge-crlf.txt
+> add .gitliteignore
 <<<
-> commit "track keep"
++ root-only.dat wug.txt
++ literal*.dat wug.txt
++ literal?.dat wug.txt
++ drop.tmp wug.txt
++ keep.tmp notwug.txt
+> add root-only.dat
 <<<
-+ .gitliteignore ignore-txt.txt
-+ keep.txt notwug.txt
-> add keep.txt
+> add literal*.dat
 <<<
-> commit "update tracked keep"
+> add literal?.dat
 <<<
-- keep.txt
-> checkout -- keep.txt
+> add drop.tmp
 <<<
-= keep.txt notwug.txt
+> add keep.tmp
+<<<
+> commit "update rules and keep exception"
+<<<
+- .gitliteignore
+- keep.tmp
+> checkout -- .gitliteignore
+<<<
+> checkout -- keep.tmp
+<<<
+= .gitliteignore ignore-edge-crlf.txt
+= keep.tmp notwug.txt
+> status
+=== Branches ===
+*master
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+
+<<<

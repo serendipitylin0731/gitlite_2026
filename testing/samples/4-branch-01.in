@@ -16,6 +16,29 @@ E g.txt
 <<<
 * f.txt
 * g.txt
++ staged.txt wug2.txt
+> add staged.txt
+<<<
+> checkout master
+<<<
+> status
+=== Branches ===
+*master
+other
+
+=== Staged Files ===
+
+=== Removed Files ===
+
+=== Modifications Not Staged For Commit ===
+
+=== Untracked Files ===
+staged.txt
+
+<<<
+- staged.txt
+> checkout other
+<<<
 + f.txt notwug.txt
 > add f.txt
 <<<

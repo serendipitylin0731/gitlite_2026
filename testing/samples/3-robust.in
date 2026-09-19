@@ -1,0 +1,16 @@
+# Goal: status and branch-checkout validation after Subtask 3 works.
+> status extra
+Not in an initialized Gitlite directory.
+<<<
+> init
+<<<
+> status extra
+Incorrect operands.
+<<<
+> checkout --
+No such branch exists.
+<<<
+> checkout a b c d
+Incorrect operands.
+<<<
+I blank-status.inc
